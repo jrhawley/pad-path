@@ -3,7 +3,13 @@ name = "pad-path"
 version = "0.1.0"
 authors = ["James Hawley <jamesrichardhawley@gmail.com>"]
 edition = "2018"
+description = "Intuitively modify your `$PATH`"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+clap = "2"
+
+[[bin]]
+name = "pad"
+path = "src/main.rs"
