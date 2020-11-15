@@ -60,6 +60,9 @@ pub fn make_abs_path(p: &PathBuf) -> PathBuf {
 pub fn add_to_path(dir: PathBuf, prepend: bool, dryrun: bool) -> Result<(), Error> {
     // read the path and convert into Vec<&PathBuf>
     let mut current_path: Vec<PathBuf> = read_path();
+    if let Some(_) = current_path.iter().position(|x| *x == dir) {
+        panic!("PATH already contains this directory. Not adding.")
+    }
     let newpath = match prepend {
         true => {
             let mut all_paths = vec![dir];
