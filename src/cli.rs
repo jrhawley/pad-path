@@ -90,7 +90,7 @@ pub fn parse_cli() -> ArgMatches<'static> {
         )
         .subcommand(
             SubCommand::with_name("dn")
-                .about("Increase priority for a directory")
+                .about("Decrease priority for a directory")
                 .visible_aliases(&["down", "dec"])
                 .arg(
                     Arg::with_name("dir")

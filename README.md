@@ -23,7 +23,7 @@ cargo build --release
 ## Usage
 
 ```shell
-pad-path 0.1.0
+pad-path 0.1.1
 Intuitively modify your `$PATH`
 
 USAGE:
@@ -36,7 +36,7 @@ FLAGS:
 SUBCOMMANDS:
     add      Add a directory
     clean    Remove duplicates [aliases: dedup]
-    dn       Increase priority for a directory [aliases: down, dec]
+    dn       Decrease priority for a directory [aliases: down, dec]
     help     Prints this message or the help of the given subcommand(s)
     ls       List the directories in PATH [aliases: echo]
     rm       Remove a directory [aliases: del]
