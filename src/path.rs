@@ -1,6 +1,7 @@
 use itertools::Itertools;
 use std::cmp::min;
-use std::env::{current_dir, join_paths, split_paths, var_os, JoinPathsError};
+use std::env::{current_dir, join_paths, split_paths, var_os};
+use std::ffi::OsString;
 use std::fs::canonicalize;
 use std::io::Error;
 use std::path::PathBuf;
@@ -19,15 +20,20 @@ pub fn read_path() -> Vec<PathBuf> {
     split_paths(&path_str).into_iter().collect()
 }
 
-/// Replace the PATH environment variable on Windows
-fn replace_windows_path(path_str: &str) {
+/// Replace the PATH environment variabel
+fn replace_path(newpath: OsString, dryrun: bool) -> Result<(), Error> {
     // need to use Registry Editor to edit environment variables on windows
     //     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
     //     let (env, _) = hkcu.create_subkey("Environment").unwrap();
+    let current_path = read_raw_path();
+    if dryrun {
+        println!("PATH before modifcation:\n\t{}", current_path);
+        println!("PATH after modifcation:\n\t{}", newpath.to_str().unwrap());
+    } else {
+        // env::set_var("PATH", newpath);
+    }
+    Ok(())
 }
-
-/// Replace the PATH environment variable on *nix systems
-fn replace_nix_path(path_str: &str) {}
 
 /// Force a PathBuf to be absolute, or make it absolute using the current directory
 pub fn make_abs_path(p: &PathBuf) -> PathBuf {
@@ -45,27 +51,21 @@ pub fn make_abs_path(p: &PathBuf) -> PathBuf {
 }
 
 /// Add the given directory to the PATH environment variable
-pub fn add_to_path(dir: PathBuf, prepend: bool, dryrun: bool) -> Result<(), JoinPathsError> {
+pub fn add_to_path(dir: PathBuf, prepend: bool, dryrun: bool) -> Result<(), Error> {
     // read the path and convert into Vec<&PathBuf>
     let mut current_path: Vec<PathBuf> = read_path();
     let newpath = match prepend {
         true => {
             let mut all_paths = vec![dir];
             all_paths.append(&mut current_path);
-            join_paths(all_paths)?
+            join_paths(all_paths).unwrap()
         }
         false => {
             current_path.push(dir);
-            join_paths(current_path)?
+            join_paths(current_path).unwrap()
         }
     };
-    if dryrun {
-        println!("PATH before modifcation:\n\t{}", read_raw_path());
-        println!("PATH after modifcation:\n\t{}", newpath.to_str().unwrap());
-    } else {
-        // env::set_var("PATH", newpath);
-    }
-    Ok(())
+    replace_path(newpath, dryrun);
 }
 
 /// Remove the given directory to the PATH environment variable
@@ -77,17 +77,10 @@ pub fn rm_from_path(dir: PathBuf, dryrun: bool) -> Result<(), Error> {
         let mut vpath = current_path.clone();
         vpath.remove(i);
         let newpath = join_paths(vpath).unwrap();
-        // change the PATH, if dryrun is not specified
-        if dryrun {
-            println!("PATH before modifcation:\n\t{}", read_raw_path());
-            println!("PATH after modifcation:\n\t{}", newpath.to_str().unwrap());
-        } else {
-            // env::set_var("PATH", newpath);
-        }
+        replace_path(newpath, dryrun)
     } else {
         panic!("Directory is not found in PATH. It will not be removed.")
     }
-    Ok(())
 }
 
 /// Change the priority of a directory by moving it earlier or later in PATH
@@ -155,17 +148,10 @@ pub fn change_priority(dir: PathBuf, jump: i8, dryrun: bool) -> Result<(), Error
             );
         }
         let newpath = join_paths(vpath).unwrap();
-        // change the PATH, if dryrun is not specified
-        if dryrun {
-            println!("PATH before modifcation:\n\t{}", read_raw_path());
-            println!("PATH after modifcation:\n\t{}", newpath.to_str().unwrap());
-        } else {
-            // env::set_var("PATH", newpath);
-        }
+        replace_path(newpath, dryrun)
     } else {
         panic!("Directory is not found in PATH. Nothing is changed.")
     }
-    Ok(())
 }
 
 /// Clean up PATH by removing duplicated directories.
@@ -175,12 +161,5 @@ pub fn clean_path(dryrun: bool) -> Result<(), Error> {
     let current_path = read_path();
     let vpath: Vec<PathBuf> = current_path.into_iter().unique().collect();
     let newpath = join_paths(vpath).unwrap();
-    // change the PATH, if dryrun is not specified
-    if dryrun {
-        println!("PATH before modifcation:\n\t{}", read_raw_path());
-        println!("PATH after modifcation:\n\t{}", newpath.to_str().unwrap());
-    } else {
-        // env::set_var("PATH", newpath);
-    }
-    Ok(())
+    replace_path(newpath, dryrun)
 }
