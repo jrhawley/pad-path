@@ -65,7 +65,7 @@ pub fn add_to_path(dir: PathBuf, prepend: bool, dryrun: bool) -> Result<(), Erro
             join_paths(current_path).unwrap()
         }
     };
-    replace_path(newpath, dryrun);
+    replace_path(newpath, dryrun)
 }
 
 /// Remove the given directory to the PATH environment variable
