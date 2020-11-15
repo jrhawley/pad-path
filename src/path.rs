@@ -5,7 +5,10 @@ use std::ffi::OsString;
 use std::fs::canonicalize;
 use std::io::Error;
 use std::path::PathBuf;
+
+#[cfg(windows)]
 use winreg::enums::*;
+#[cfg(windows)]
 use winreg::RegKey;
 
 /// Get the value for the PATH environment variable
@@ -22,22 +25,43 @@ pub fn read_path() -> Vec<PathBuf> {
     split_paths(&path_str).into_iter().collect()
 }
 
-/// Replace the PATH environment variabel
+/// Replace the PATH evironment variable on Windows
+#[cfg(target_os = "windows")]
 fn replace_path(newpath: OsString, dryrun: bool) -> Result<(), Error> {
     let current_path = read_raw_path();
     if dryrun {
         println!("PATH before modifcation:\n\t{}", current_path);
         println!("PATH after modifcation:\n\t{}", newpath.to_str().unwrap());
     }
-    if cfg!(windows) {
-        // need to use Registry Editor to edit environment variables on Windows
-        let hkcu = RegKey::predef(HKEY_CURRENT_USER);
-        let (env, _) = hkcu.create_subkey("Environment").unwrap();
-        env.set_value("PATH", &String::from(newpath.to_str().unwrap()))
-            .unwrap();
-    } else {
-        set_var("PATH", newpath);
+    // need to use Registry Editor to edit environment variables on Windows
+    let hkcu = RegKey::predef(HKEY_CURRENT_USER);
+    let (env, _) = hkcu.create_subkey("Environment").unwrap();
+    env.set_value("PATH", &String::from(newpath.to_str().unwrap()))
+        .unwrap();
+    Ok(())
+}
+
+/// Replace the PATH environment variable on Linux
+#[cfg(target_os = "linux")]
+fn replace_path(newpath: OsString, dryrun: bool) -> Result<(), Error> {
+    let current_path = read_raw_path();
+    if dryrun {
+        println!("PATH before modifcation:\n\t{}", current_path);
+        println!("PATH after modifcation:\n\t{}", newpath.to_str().unwrap());
     }
+    set_var("PATH", newpath);
+    Ok(())
+}
+
+/// Replace the PATH environment variable on macOS
+#[cfg(target_os = "macos")]
+fn replace_path(newpath: OsString, dryrun: bool) -> Result<(), Error> {
+    let current_path = read_raw_path();
+    if dryrun {
+        println!("PATH before modifcation:\n\t{}", current_path);
+        println!("PATH after modifcation:\n\t{}", newpath.to_str().unwrap());
+    }
+    set_var("PATH", newpath);
     Ok(())
 }
 
