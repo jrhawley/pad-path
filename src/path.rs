@@ -101,7 +101,7 @@ pub fn change_priority(dir: PathBuf, jump: i8, dryrun: bool) -> Result<(), Error
         if i_signed + jump < 0 {
             new_idx = 0;
         } else {
-            new_idx = min((i_signed + jump) as usize, current_path.len());
+            new_idx = min((i_signed + jump) as usize, current_path.len() - 1);
         }
         let mut vpath: Vec<PathBuf>;
 
