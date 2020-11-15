@@ -1,5 +1,6 @@
 use std::env;
-use std::env::{join_paths, split_paths, JoinPathsError};
+use std::env::{current_dir, join_paths, split_paths, JoinPathsError};
+use std::fs::canonicalize;
 use std::path::{Path, PathBuf};
 // use winreg::{enums::*, RegKey};
 
@@ -59,21 +60,34 @@ fn main() -> Result<(), JoinPathsError> {
             println!("{}", p.display());
         }
     } else if let Some(_o) = matches.subcommand_matches("add") {
-        // verify input directory and convert to absolute path
-        let dir = PathBuf::from(_o.value_of("dir").unwrap());
+        // read command line options
+        let indir = PathBuf::from(_o.value_of("dir").unwrap());
         let prepend = _o.is_present("prepend");
         let dryrun = _o.is_present("dryrun");
 
-        if !dir.exists() {
+        // convert to absolute directory
+        let abs_dir = match indir.is_relative() {
+            true => match indir.exists() {
+                true => canonicalize(indir).unwrap(),
+                false => {
+                    let mut abs_dir = current_dir().unwrap();
+                    abs_dir.push(indir);
+                    abs_dir
+                }
+            },
+            false => indir,
+        };
+
+        if !abs_dir.exists() {
             if _o.is_present("force") {
-                add_to_path(dir, prepend, dryrun)?
+                add_to_path(abs_dir, prepend, dryrun)?
             } else {
                 eprintln!(
                     "Directory does not exist. If you still want to add this, re-run with `-f/--force`."
                 );
             }
         } else {
-            add_to_path(dir, prepend, dryrun)?
+            add_to_path(abs_dir, prepend, dryrun)?
         }
     }
     Ok(())
