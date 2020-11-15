@@ -2,6 +2,8 @@
 
 Intuitively modify your `$PATH`.
 
+![Crates.io](https://img.shields.io/crates/v/pad-path)
+
 ## Installation
 
 ### Cargo

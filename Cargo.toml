@@ -4,6 +4,17 @@ version = "0.1.0"
 authors = ["James Hawley <jamesrichardhawley@gmail.com>"]
 edition = "2018"
 description = "Intuitively modify your `$PATH`"
+license = "MIT"
+repository = "https://github.com/jrhawley/pad-path/"
+homepage = "https://github.com/jrhawley/pad-path/"
+readme = "README.md"
+categories = ["command-line-utilities"]
+keywords = ["cli"]
+include = [
+	"src/**/*",
+	"Cargo.toml",
+	"README.md"
+]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
