@@ -10,6 +10,9 @@ description = "Intuitively modify your `$PATH`"
 [dependencies]
 clap = "2"
 
+[target.'cfg(windows)'.dependencies]
+winreg = "0.7"
+
 [[bin]]
 name = "pad"
 path = "src/main.rs"
