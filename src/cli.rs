@@ -64,15 +64,22 @@ pub fn parse_cli() -> ArgMatches<'static> {
                 ),
         )
         .subcommand(
-            SubCommand::with_name("pri")
-                .about("Change the priority for a directory")
-                .visible_alias("priority")
+            SubCommand::with_name("up")
+                .about("Increase priority for a directory")
+                .visible_alias("inc")
                 .arg(
                     Arg::with_name("dir")
-                        .help("Directory to move up or down")
+                        .help("Directory to move")
                         .required(true)
                         .takes_value(true)
                         .default_value("."),
+                )
+                .arg(
+                    Arg::with_name("jump")
+                        .value_name("JUMP")
+                        .help("Move this directory up `JUMP` spots in the PATH.")
+                        .required(true)
+                        .takes_value(true),
                 )
                 .arg(
                     Arg::with_name("dryrun")
@@ -80,14 +87,43 @@ pub fn parse_cli() -> ArgMatches<'static> {
                         .long("dryrun")
                         .takes_value(false)
                         .help("Only show the changes to PATH, don't actually make changes to PATH"),
+                ),
+        )
+        .subcommand(
+            SubCommand::with_name("dn")
+                .about("Increase priority for a directory")
+                .visible_aliases(&["down", "dec"])
+                .arg(
+                    Arg::with_name("dir")
+                        .help("Directory to move down")
+                        .required(true)
+                        .takes_value(true)
+                        .default_value("."),
                 )
                 .arg(
                     Arg::with_name("jump")
-                        .short("j")
-                        .long("jump-number")
                         .value_name("JUMP")
-                        .help("Move this directory up or down `JUMP` spots in the PATH")
+                        .help("Move this directory down `JUMP` spots in the PATH.")
+                        .required(true)
                         .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("dryrun")
+                        .short("n")
+                        .long("dryrun")
+                        .takes_value(false)
+                        .help("Only show the changes to PATH, don't actually make changes to PATH"),
+                ),
+        )
+        .subcommand(
+            SubCommand::with_name("dedup")
+                .about("Remove duplicates")
+                .arg(
+                    Arg::with_name("dryrun")
+                        .short("n")
+                        .long("dryrun")
+                        .takes_value(false)
+                        .help("Only show the changes to PATH, don't actually make changes to PATH"),
                 ),
         )
         .subcommand(
