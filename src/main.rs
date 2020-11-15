@@ -1,5 +1,3 @@
-use std::env::{current_dir, JoinPathsError};
-use std::fs::canonicalize;
 use std::path::PathBuf;
 // use winreg::{enums::*, RegKey};
 
@@ -7,9 +5,9 @@ mod cli;
 mod path;
 
 use cli::parse_cli;
-use path::{add_to_path, read_path};
+use path::{add_to_path, make_abs_path, read_path, rm_from_path};
 
-fn main() -> Result<(), JoinPathsError> {
+fn main() {
     let matches = parse_cli();
     if let Some(_o) = matches.subcommand_matches("ls") {
         let vpath = read_path();
@@ -23,29 +21,35 @@ fn main() -> Result<(), JoinPathsError> {
         let dryrun = _o.is_present("dryrun");
 
         // convert to absolute directory
-        let abs_dir = match indir.is_relative() {
-            true => match indir.exists() {
-                true => canonicalize(indir).unwrap(),
-                false => {
-                    let mut abs_dir = current_dir().unwrap();
-                    abs_dir.push(indir);
-                    abs_dir
-                }
-            },
-            false => indir,
-        };
+        let abs_dir = make_abs_path(&indir);
 
         if !abs_dir.exists() {
             if _o.is_present("force") {
-                add_to_path(abs_dir, prepend, dryrun)?
+                match add_to_path(abs_dir, prepend, dryrun) {
+                    Ok(_) => {}
+                    Err(e) => eprintln!("Count not add to PATH. '{}'", e),
+                };
             } else {
                 eprintln!(
                     "Directory does not exist. If you still want to add this, re-run with `-f/--force`."
                 );
             }
         } else {
-            add_to_path(abs_dir, prepend, dryrun)?
+            match add_to_path(abs_dir, prepend, dryrun) {
+                Ok(_) => {}
+                Err(e) => eprintln!("Count not add to PATH. '{}'", e),
+            };
         }
+    } else if let Some(_o) = matches.subcommand_matches("rm") {
+        // read command line options
+        let indir = PathBuf::from(_o.value_of("dir").unwrap());
+        let dryrun = _o.is_present("dryrun");
+
+        // convert to absolute directory
+        let abs_dir = make_abs_path(&indir);
+        match rm_from_path(abs_dir, dryrun) {
+            Ok(_) => {}
+            Err(e) => eprintln!("Count remove from PATH. '{}'", e),
+        };
     }
-    Ok(())
 }
