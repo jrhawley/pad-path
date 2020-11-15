@@ -4,7 +4,6 @@ use clap::{
 
 pub fn parse_cli() -> ArgMatches<'static> {
     let matches = App::new(crate_name!())
-        .author(crate_authors!())
         .about(crate_description!())
         .version(crate_version!())
         .subcommand(
