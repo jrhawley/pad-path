@@ -1,10 +1,12 @@
 use itertools::Itertools;
 use std::cmp::min;
-use std::env::{current_dir, join_paths, split_paths, var_os};
+use std::env::{current_dir, join_paths, set_var, split_paths, var_os};
 use std::ffi::OsString;
 use std::fs::canonicalize;
 use std::io::Error;
 use std::path::PathBuf;
+use winreg::enums::*;
+use winreg::RegKey;
 
 /// Get the value for the PATH environment variable
 fn read_raw_path() -> String {
@@ -22,15 +24,19 @@ pub fn read_path() -> Vec<PathBuf> {
 
 /// Replace the PATH environment variabel
 fn replace_path(newpath: OsString, dryrun: bool) -> Result<(), Error> {
-    // need to use Registry Editor to edit environment variables on windows
-    //     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
-    //     let (env, _) = hkcu.create_subkey("Environment").unwrap();
     let current_path = read_raw_path();
     if dryrun {
         println!("PATH before modifcation:\n\t{}", current_path);
         println!("PATH after modifcation:\n\t{}", newpath.to_str().unwrap());
+    }
+    if cfg!(windows) {
+        // need to use Registry Editor to edit environment variables on Windows
+        let hkcu = RegKey::predef(HKEY_CURRENT_USER);
+        let (env, _) = hkcu.create_subkey("Environment").unwrap();
+        env.set_value("PATH", &String::from(newpath.to_str().unwrap()))
+            .unwrap();
     } else {
-        // env::set_var("PATH", newpath);
+        set_var("PATH", newpath);
     }
     Ok(())
 }
