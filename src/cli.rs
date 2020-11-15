@@ -116,8 +116,9 @@ pub fn parse_cli() -> ArgMatches<'static> {
                 ),
         )
         .subcommand(
-            SubCommand::with_name("dedup")
+            SubCommand::with_name("clean")
                 .about("Remove duplicates")
+                .visible_alias("dedup")
                 .arg(
                     Arg::with_name("dryrun")
                         .short("n")

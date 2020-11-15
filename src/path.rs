@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use std::cmp::min;
 use std::env::{current_dir, join_paths, split_paths, var_os, JoinPathsError};
 use std::fs::canonicalize;
@@ -163,6 +164,23 @@ pub fn change_priority(dir: PathBuf, jump: i8, dryrun: bool) -> Result<(), Error
         }
     } else {
         panic!("Directory is not found in PATH. Nothing is changed.")
+    }
+    Ok(())
+}
+
+/// Clean up PATH by removing duplicated directories.
+/// No behaviour changes, since we keep the first occurrence in its position and remove all
+/// latter occurrences.
+pub fn clean_path(dryrun: bool) -> Result<(), Error> {
+    let current_path = read_path();
+    let vpath: Vec<PathBuf> = current_path.into_iter().unique().collect();
+    let newpath = join_paths(vpath).unwrap();
+    // change the PATH, if dryrun is not specified
+    if dryrun {
+        println!("PATH before modifcation:\n\t{}", read_raw_path());
+        println!("PATH after modifcation:\n\t{}", newpath.to_str().unwrap());
+    } else {
+        // env::set_var("PATH", newpath);
     }
     Ok(())
 }

@@ -5,7 +5,7 @@ mod cli;
 mod path;
 
 use cli::parse_cli;
-use path::{add_to_path, change_priority, make_abs_path, read_path, rm_from_path};
+use path::{add_to_path, change_priority, clean_path, make_abs_path, read_path, rm_from_path};
 
 fn main() {
     let matches = parse_cli();
@@ -80,6 +80,12 @@ fn main() {
         match change_priority(abs_dir, jump as i8, dryrun) {
             Ok(_) => {}
             Err(e) => eprintln!("Could not reorder PATH. '{}'", e),
+        };
+    } else if let Some(_o) = matches.subcommand_matches("clean") {
+        let dryrun = _o.is_present("dryrun");
+        match clean_path(dryrun) {
+            Ok(_) => {}
+            Err(e) => eprintln!("Could not clean PATH. '{}'", e),
         };
     }
 }

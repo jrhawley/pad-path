@@ -9,6 +9,7 @@ description = "Intuitively modify your `$PATH`"
 
 [dependencies]
 clap = "2"
+itertools = "0.9"
 
 [target.'cfg(windows)'.dependencies]
 winreg = "0.7"
