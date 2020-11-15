@@ -52,8 +52,7 @@ pub fn add_to_path(dir: PathBuf, prepend: bool, dryrun: bool) -> Result<(), Join
             join_paths(all_paths)?
         }
         false => {
-            let mut all_paths = vec![dir];
-            current_path.append(&mut all_paths);
+            current_path.push(dir);
             join_paths(current_path)?
         }
     };
