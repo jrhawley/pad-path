@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.1.3
+
+- Additionally remove non-existing directories from `PATH` with `clean` subcommand
+- Default to +/-1 positions for `up` and `dn` subcommands
+
 ## v0.1.2
 
 - Making use of `OLD_PATH` directory for safer changes
