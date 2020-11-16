@@ -15,6 +15,11 @@ use winreg::enums::*;
 #[cfg(target_os = "windows")]
 use winreg::RegKey;
 
+/// Get the value for the OLD_PATH environment variable
+pub fn read_old_path() -> Option<OsString> {
+    var_os("OLD_PATH")
+}
+
 /// Get the value for the PATH environment variable
 fn read_raw_path() -> String {
     match var_os("PATH") {
@@ -205,4 +210,15 @@ pub fn clean_path(dryrun: bool) -> Result<(), Error> {
     let vpath: Vec<PathBuf> = current_path.into_iter().unique().collect();
     let newpath = join_paths(vpath).unwrap();
     replace_path(newpath, dryrun)
+}
+
+/// Undo recent changes and replace PATH with OLD_PATH
+pub fn revert_path(dryrun: bool) -> Result<(), Error> {
+    match read_old_path() {
+        Some(oldpath) => replace_path(oldpath, dryrun),
+        None => Err(Error::new(
+            ErrorKind::NotFound,
+            "OLD_PATH not found. Not reverting.",
+        )),
+    }
 }
