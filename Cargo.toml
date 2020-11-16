@@ -1,6 +1,6 @@
 [package]
 name = "pad-path"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["James Hawley <jamesrichardhawley@gmail.com>"]
 edition = "2018"
 description = "Intuitively modify your `$PATH`"
