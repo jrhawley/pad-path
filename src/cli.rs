@@ -83,7 +83,8 @@ fn parse_cli() -> ArgMatches<'static> {
                         .value_name("JUMP")
                         .help("Move this directory up `JUMP` spots in the PATH.")
                         .required(true)
-                        .takes_value(true),
+                        .takes_value(true)
+                        .default_value("1"),
                 )
                 .arg(
                     Arg::with_name("dryrun")
@@ -109,7 +110,8 @@ fn parse_cli() -> ArgMatches<'static> {
                         .value_name("JUMP")
                         .help("Move this directory down `JUMP` spots in the PATH.")
                         .required(true)
-                        .takes_value(true),
+                        .takes_value(true)
+                        .default_value("1"),
                 )
                 .arg(
                     Arg::with_name("dryrun")
