@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.1.4
+
+- Bugfixes for *nix operating systems
+- Option to show `OLD_PATH` with `ls` subcommand
+
 ## v0.1.3
 
 - Additionally remove non-existing directories from `PATH` with `clean` subcommand
