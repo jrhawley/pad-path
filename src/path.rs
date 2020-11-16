@@ -36,7 +36,7 @@ pub fn read_path() -> Vec<PathBuf> {
 
 /// Replace the PATH evironment variable on Windows
 #[cfg(target_os = "windows")]
-fn replace_path(newpath: OsString, dryrun: bool) -> Result<(), Error> {
+fn replace_path(newpath: OsString, overwrite_old: bool, dryrun: bool) -> Result<(), Error> {
     let current_path = read_raw_path();
     if dryrun {
         println!("PATH before modifcation:\n\t{}", current_path);
@@ -45,33 +45,37 @@ fn replace_path(newpath: OsString, dryrun: bool) -> Result<(), Error> {
     // need to use Registry Editor to edit environment variables on Windows
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
     let (env, _) = hkcu.create_subkey("Environment").unwrap();
+    // check if OLD_PATH is written to properly before overwriting current PATH
+    // need to have this as an optional step if we want to be able to undo and replace PATH with OLD_PATH
+    if overwrite_old {
+        match env.set_value("OLD_PATH", &current_path) {
+            // if no issues with saving the variable, continue, otherwise throw error
+            Ok(_) => {}
+            Err(e) => return Err(e),
+        };
+    }
+    // perform the actual write operation to PATH
     env.set_value("PATH", &String::from(newpath.to_str().unwrap()))
-        .unwrap();
-    Ok(())
 }
 
-/// Replace the PATH environment variable on Linux
-#[cfg(target_os = "linux")]
-fn replace_path(newpath: OsString, dryrun: bool) -> Result<(), Error> {
+/// Replace the PATH environment variable on non-Windows devices
+#[cfg(not(target_os = "windows"))]
+fn replace_path(newpath: OsString, overwrite_old: bool, dryrun: bool) -> Result<(), Error> {
     let current_path = read_raw_path();
     if dryrun {
         println!("PATH before modifcation:\n\t{}", current_path);
         println!("PATH after modifcation:\n\t{}", newpath.to_str().unwrap());
     }
-    set_var("PATH", newpath);
-    Ok(())
-}
-
-/// Replace the PATH environment variable on macOS
-#[cfg(target_os = "macos")]
-fn replace_path(newpath: OsString, dryrun: bool) -> Result<(), Error> {
-    let current_path = read_raw_path();
-    if dryrun {
-        println!("PATH before modifcation:\n\t{}", current_path);
-        println!("PATH after modifcation:\n\t{}", newpath.to_str().unwrap());
+    // check if OLD_PATH is written to properly before overwriting current PATH
+    // need to have this as an optional step if we want to be able to undo and replace PATH with OLD_PATH
+    if overwrite_old {
+        match set_var("OLD_PATH", current_path) {
+            // if no issues with saving the variable, continue, otherwise throw error
+            Ok(_) => {}
+            Err(e) => return Err(e),
+        };
     }
-    set_var("PATH", newpath);
-    Ok(())
+    set_var("PATH", newpath)
 }
 
 /// Force a PathBuf to be absolute, or make it absolute using the current directory
@@ -107,7 +111,7 @@ pub fn add_to_path(dir: PathBuf, prepend: bool, dryrun: bool) -> Result<(), Erro
             join_paths(current_path).unwrap()
         }
     };
-    replace_path(newpath, dryrun)
+    replace_path(newpath, true, dryrun)
 }
 
 /// Remove the given directory to the PATH environment variable
@@ -119,7 +123,7 @@ pub fn rm_from_path(dir: PathBuf, dryrun: bool) -> Result<(), Error> {
         let mut vpath = current_path.clone();
         vpath.remove(i);
         let newpath = join_paths(vpath).unwrap();
-        replace_path(newpath, dryrun)
+        replace_path(newpath, true, dryrun)
     } else {
         Err(Error::new(
             ErrorKind::NotFound,
@@ -193,7 +197,7 @@ pub fn change_priority(dir: PathBuf, jump: i8, dryrun: bool) -> Result<(), Error
             );
         }
         let newpath = join_paths(vpath).unwrap();
-        replace_path(newpath, dryrun)
+        replace_path(newpath, true, dryrun)
     } else {
         Err(Error::new(
             ErrorKind::NotFound,
@@ -209,13 +213,13 @@ pub fn clean_path(dryrun: bool) -> Result<(), Error> {
     let current_path = read_path();
     let vpath: Vec<PathBuf> = current_path.into_iter().unique().collect();
     let newpath = join_paths(vpath).unwrap();
-    replace_path(newpath, dryrun)
+    replace_path(newpath, true, dryrun)
 }
 
 /// Undo recent changes and replace PATH with OLD_PATH
 pub fn revert_path(dryrun: bool) -> Result<(), Error> {
     match read_old_path() {
-        Some(oldpath) => replace_path(oldpath, dryrun),
+        Some(oldpath) => replace_path(oldpath, false, dryrun),
         None => Err(Error::new(
             ErrorKind::NotFound,
             "OLD_PATH not found. Not reverting.",
