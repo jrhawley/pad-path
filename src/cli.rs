@@ -179,31 +179,35 @@ pub fn cli_flow() -> Result<(), Error> {
         let indir = PathBuf::from(_o.value_of("dir").unwrap());
         let jump = match _o.value_of("jump").unwrap().parse::<usize>() {
             Ok(j) => j,
-            Err(_) => panic!("JUMP must be an integer."),
+            Err(_) => {
+                return Err(Error::new(
+                    ErrorKind::InvalidInput,
+                    "JUMP must be an integer.",
+                ))
+            }
         };
         let dryrun = _o.is_present("dryrun");
 
         // convert to absolute directory
         let abs_dir = make_abs_path(&indir);
-        match change_priority(abs_dir, -1 * (jump as i8), dryrun) {
-            Ok(_) => {}
-            Err(e) => eprintln!("Could not reorder PATH. '{}'", e),
-        };
+        return change_priority(abs_dir, -1 * (jump as i8), dryrun);
     } else if let Some(_o) = matches.subcommand_matches("dn") {
         // read command line options
         let indir = PathBuf::from(_o.value_of("dir").unwrap());
         let jump = match _o.value_of("jump").unwrap().parse::<usize>() {
             Ok(j) => j,
-            Err(_) => panic!("JUMP must be an integer."),
+            Err(_) => {
+                return Err(Error::new(
+                    ErrorKind::InvalidInput,
+                    "JUMP must be an integer.",
+                ))
+            }
         };
         let dryrun = _o.is_present("dryrun");
 
         // convert to absolute directory
         let abs_dir = make_abs_path(&indir);
-        match change_priority(abs_dir, jump as i8, dryrun) {
-            Ok(_) => {}
-            Err(e) => eprintln!("Could not reorder PATH. '{}'", e),
-        };
+        return change_priority(abs_dir, jump as i8, dryrun);
     } else if let Some(_o) = matches.subcommand_matches("clean") {
         let dryrun = _o.is_present("dryrun");
         match clean_path(dryrun) {
