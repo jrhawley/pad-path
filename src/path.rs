@@ -16,30 +16,37 @@ use winreg::enums::*;
 use winreg::RegKey;
 
 /// Get the value for the OLD_PATH environment variable
-pub fn read_old_path() -> Option<OsString> {
+pub fn read_raw_old_path() -> Option<OsString> {
     var_os("OLD_PATH")
 }
 
 /// Get the value for the PATH environment variable
-fn read_raw_path() -> String {
-    match var_os("PATH") {
-        Some(p_str) => String::from(p_str.to_str().unwrap()),
-        None => String::new(),
+fn read_raw_path() -> Option<OsString> {
+    var_os("PATH")
+}
+
+/// Get the value for the OLD_PATH environment variable, split across a vector
+pub fn read_old_path() -> Vec<PathBuf> {
+    match read_raw_old_path() {
+        Some(path_str) => split_paths(&path_str).into_iter().collect(),
+        None => vec![PathBuf::from("")],
     }
 }
 
 /// Get the value for the PATH environment variable, split across a vector
 pub fn read_path() -> Vec<PathBuf> {
-    let path_str = read_raw_path();
-    split_paths(&path_str).into_iter().collect()
+    match read_raw_path() {
+        Some(path_str) => split_paths(&path_str).into_iter().collect(),
+        None => vec![PathBuf::from("")],
+    }
 }
 
 /// Replace the PATH evironment variable on Windows
 #[cfg(target_os = "windows")]
 fn replace_path(newpath: OsString, overwrite_old: bool, dryrun: bool) -> Result<(), Error> {
-    let current_path = read_raw_path();
+    let current_path = String::from(read_raw_path().unwrap().to_str().unwrap());
     if dryrun {
-        println!("PATH before modifcation:\n\t{}", current_path);
+        println!("PATH before modifcation:\n\t{}", &current_path);
         println!("PATH after modifcation:\n\t{}", newpath.to_str().unwrap());
         // skip the remainder of the function
         return Ok(());
@@ -63,9 +70,9 @@ fn replace_path(newpath: OsString, overwrite_old: bool, dryrun: bool) -> Result<
 /// Replace the PATH environment variable on non-Windows devices
 #[cfg(not(target_os = "windows"))]
 fn replace_path(newpath: OsString, overwrite_old: bool, dryrun: bool) -> Result<(), Error> {
-    let current_path = read_raw_path();
+    let current_path = String::from(read_raw_path().unwrap().to_str().unwrap());
     if dryrun {
-        println!("PATH before modifcation:\n\t{}", current_path);
+        println!("PATH before modifcation:\n\t{}", &current_path);
         println!("PATH after modifcation:\n\t{}", newpath.to_str().unwrap());
         // skip the remainder of the function
         return Ok(());
@@ -73,13 +80,10 @@ fn replace_path(newpath: OsString, overwrite_old: bool, dryrun: bool) -> Result<
     // check if OLD_PATH is written to properly before overwriting current PATH
     // need to have this as an optional step if we want to be able to undo and replace PATH with OLD_PATH
     if overwrite_old {
-        match set_var("OLD_PATH", current_path) {
-            // if no issues with saving the variable, continue, otherwise throw error
-            Ok(_) => {}
-            Err(e) => return Err(e),
-        };
+        set_var("OLD_PATH", &current_path);
     }
-    set_var("PATH", newpath)
+    set_var("PATH", newpath);
+    Ok(())
 }
 
 /// Force a PathBuf to be absolute, or make it absolute using the current directory
@@ -227,11 +231,11 @@ pub fn clean_path(dryrun: bool) -> Result<(), Error> {
 
 /// Undo recent changes and replace PATH with OLD_PATH
 pub fn revert_path(dryrun: bool) -> Result<(), Error> {
-    match read_old_path() {
+    match read_raw_old_path() {
         Some(oldpath) => replace_path(oldpath, false, dryrun),
         None => Err(Error::new(
             ErrorKind::NotFound,
-            "OLD_PATH not found. Not reverting.",
+            "OLD_PATH not found or is empty. Not reverting.",
         )),
     }
 }

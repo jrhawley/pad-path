@@ -3,7 +3,6 @@ use crate::path::{
     rm_from_path,
 };
 use clap::{crate_description, crate_name, crate_version, App, Arg, ArgMatches, SubCommand};
-use std::ffi::OsString;
 use std::io::{Error, ErrorKind};
 use std::path::PathBuf;
 
@@ -155,7 +154,15 @@ fn parse_cli() -> ArgMatches<'static> {
         .subcommand(
             SubCommand::with_name("ls")
                 .about("List the directories in PATH")
-                .visible_alias("echo"),
+                .visible_alias("echo")
+                .arg(
+                    Arg::with_name("old")
+                        .short("o")
+                        .long("--old")
+                        .takes_value(false)
+                        .required(false)
+                        .help("Show OLD_PATH instead of PATH"),
+                ),
         )
         .get_matches();
     matches
@@ -164,7 +171,11 @@ fn parse_cli() -> ArgMatches<'static> {
 pub fn cli_flow() -> Result<(), Error> {
     let matches = parse_cli();
     if let Some(_o) = matches.subcommand_matches("ls") {
-        let vpath = read_path();
+        let show_old = _o.is_present("old");
+        let vpath = match show_old {
+            true => read_old_path(),
+            false => read_path(),
+        };
         for p in &vpath {
             println!("{}", p.display());
         }
@@ -241,24 +252,17 @@ pub fn cli_flow() -> Result<(), Error> {
         let oldpath = read_old_path();
         let force = _o.is_present("force");
         let dryrun = _o.is_present("dryrun");
-        match oldpath {
-            Some(op) => {
-                if op == OsString::from("") && !force {
-                    return Err(Error::new(
-                        ErrorKind::Other,
-                        "OLD_PATH is empty. If you are sure you want to revert to this, re-run with `-f/--force`.")
-                    );
-                } else {
-                    return revert_path(dryrun);
-                }
-            }
-            None => {
+        // check if OLD_PATH is empty
+        if oldpath == vec![PathBuf::from("")] {
+            if !force {
                 return Err(Error::new(
                     ErrorKind::Other,
-                    "OLD_PATH does not exist. Please create this variable before reverting.",
-                ));
+                    "OLD_PATH not found or is empty. If you are sure you want to revert to this, re-run with `-f/--force`.")
+                );
             }
+            return revert_path(dryrun);
         }
+        return revert_path(dryrun);
     }
     Ok(())
 }
