@@ -121,7 +121,7 @@ fn parse_cli() -> ArgMatches<'static> {
         )
         .subcommand(
             SubCommand::with_name("clean")
-                .about("Remove duplicates")
+                .about("Remove duplicates and non-existent directories")
                 .visible_alias("dedup")
                 .arg(
                     Arg::with_name("dryrun")

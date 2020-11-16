@@ -215,7 +215,12 @@ pub fn change_priority(dir: PathBuf, jump: i8, dryrun: bool) -> Result<(), Error
 /// latter occurrences.
 pub fn clean_path(dryrun: bool) -> Result<(), Error> {
     let current_path = read_path();
-    let vpath: Vec<PathBuf> = current_path.into_iter().unique().collect();
+    // only keep existing and unique directories
+    let vpath: Vec<PathBuf> = current_path
+        .into_iter()
+        .filter(|p| p.exists())
+        .unique()
+        .collect();
     let newpath = join_paths(vpath).unwrap();
     replace_path(newpath, true, dryrun)
 }
