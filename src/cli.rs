@@ -242,7 +242,10 @@ pub fn cli_flow() -> Result<(), Error> {
         match oldpath {
             Some(op) => {
                 if op == OsString::from("") && !force {
-                    return Err(Error::new(ErrorKind::Other, "OLD_PATH is empty. If you are sure you want to revert to this, re-run with `-f/--force`."));
+                    return Err(Error::new(
+                        ErrorKind::Other,
+                        "OLD_PATH is empty. If you are sure you want to revert to this, re-run with `-f/--force`.")
+                    );
                 } else {
                     return revert_path(dryrun);
                 }
