@@ -1,8 +1,11 @@
-use clap::{
-    crate_authors, crate_description, crate_name, crate_version, App, Arg, ArgMatches, SubCommand,
+use crate::path::{
+    add_to_path, change_priority, clean_path, make_abs_path, read_path, rm_from_path,
 };
+use clap::{crate_description, crate_name, crate_version, App, Arg, ArgMatches, SubCommand};
+use std::io::{Error, ErrorKind};
+use std::path::PathBuf;
 
-pub fn parse_cli() -> ArgMatches<'static> {
+fn parse_cli() -> ArgMatches<'static> {
     let matches = App::new(crate_name!())
         .about(crate_description!())
         .version(crate_version!())
@@ -133,4 +136,80 @@ pub fn parse_cli() -> ArgMatches<'static> {
         )
         .get_matches();
     matches
+}
+
+pub fn cli_flow() -> Result<(), Error> {
+    let matches = parse_cli();
+    if let Some(_o) = matches.subcommand_matches("ls") {
+        let vpath = read_path();
+        for p in &vpath {
+            println!("{}", p.display());
+        }
+    } else if let Some(_o) = matches.subcommand_matches("add") {
+        // read command line options
+        let indir = PathBuf::from(_o.value_of("dir").unwrap());
+        let prepend = _o.is_present("prepend");
+        let dryrun = _o.is_present("dryrun");
+
+        // convert to absolute directory
+        let abs_dir = make_abs_path(&indir);
+
+        if !abs_dir.exists() {
+            if _o.is_present("force") {
+                return add_to_path(abs_dir, prepend, dryrun);
+            } else {
+                return Err(Error::new(
+                    ErrorKind::NotFound,
+                    "Directory does not exist. If you still want to add this, re-run with `-f/--force`."
+                ));
+            }
+        } else {
+            return add_to_path(abs_dir, prepend, dryrun);
+        }
+    } else if let Some(_o) = matches.subcommand_matches("rm") {
+        // read command line options
+        let indir = PathBuf::from(_o.value_of("dir").unwrap());
+        let dryrun = _o.is_present("dryrun");
+
+        // convert to absolute directory
+        let abs_dir = make_abs_path(&indir);
+        return rm_from_path(abs_dir, dryrun);
+    } else if let Some(_o) = matches.subcommand_matches("up") {
+        // read command line options
+        let indir = PathBuf::from(_o.value_of("dir").unwrap());
+        let jump = match _o.value_of("jump").unwrap().parse::<usize>() {
+            Ok(j) => j,
+            Err(_) => panic!("JUMP must be an integer."),
+        };
+        let dryrun = _o.is_present("dryrun");
+
+        // convert to absolute directory
+        let abs_dir = make_abs_path(&indir);
+        match change_priority(abs_dir, -1 * (jump as i8), dryrun) {
+            Ok(_) => {}
+            Err(e) => eprintln!("Could not reorder PATH. '{}'", e),
+        };
+    } else if let Some(_o) = matches.subcommand_matches("dn") {
+        // read command line options
+        let indir = PathBuf::from(_o.value_of("dir").unwrap());
+        let jump = match _o.value_of("jump").unwrap().parse::<usize>() {
+            Ok(j) => j,
+            Err(_) => panic!("JUMP must be an integer."),
+        };
+        let dryrun = _o.is_present("dryrun");
+
+        // convert to absolute directory
+        let abs_dir = make_abs_path(&indir);
+        match change_priority(abs_dir, jump as i8, dryrun) {
+            Ok(_) => {}
+            Err(e) => eprintln!("Could not reorder PATH. '{}'", e),
+        };
+    } else if let Some(_o) = matches.subcommand_matches("clean") {
+        let dryrun = _o.is_present("dryrun");
+        match clean_path(dryrun) {
+            Ok(_) => {}
+            Err(e) => eprintln!("Could not clean PATH. '{}'", e),
+        };
+    }
+    Ok(())
 }

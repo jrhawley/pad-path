@@ -1,14 +1,18 @@
 use itertools::Itertools;
 use std::cmp::min;
-use std::env::{current_dir, join_paths, set_var, split_paths, var_os};
+use std::env::{current_dir, join_paths, split_paths, var_os};
 use std::ffi::OsString;
 use std::fs::canonicalize;
-use std::io::Error;
+use std::io::{Error, ErrorKind};
 use std::path::PathBuf;
 
-#[cfg(windows)]
+#[cfg(target_os = "macos")]
+use std::env::set_var;
+#[cfg(target_os = "linux")]
+use std::env::set_var;
+#[cfg(target_os = "windows")]
 use winreg::enums::*;
-#[cfg(windows)]
+#[cfg(target_os = "windows")]
 use winreg::RegKey;
 
 /// Get the value for the PATH environment variable
@@ -85,7 +89,7 @@ pub fn add_to_path(dir: PathBuf, prepend: bool, dryrun: bool) -> Result<(), Erro
     // read the path and convert into Vec<&PathBuf>
     let mut current_path: Vec<PathBuf> = read_path();
     if let Some(_) = current_path.iter().position(|x| *x == dir) {
-        panic!("PATH already contains this directory. Not adding.")
+        return Err(Error::new(ErrorKind::AlreadyExists, "Directory already exists in PATH. Use `pad up/dn` to change priority of this directory."));
     }
     let newpath = match prepend {
         true => {
@@ -112,7 +116,10 @@ pub fn rm_from_path(dir: PathBuf, dryrun: bool) -> Result<(), Error> {
         let newpath = join_paths(vpath).unwrap();
         replace_path(newpath, dryrun)
     } else {
-        panic!("Directory is not found in PATH. It will not be removed.")
+        Err(Error::new(
+            ErrorKind::NotFound,
+            "Directory not found in PATH. No changes made.",
+        ))
     }
 }
 
@@ -183,7 +190,10 @@ pub fn change_priority(dir: PathBuf, jump: i8, dryrun: bool) -> Result<(), Error
         let newpath = join_paths(vpath).unwrap();
         replace_path(newpath, dryrun)
     } else {
-        panic!("Directory is not found in PATH. Nothing is changed.")
+        Err(Error::new(
+            ErrorKind::NotFound,
+            "Directory not found in PATH. No changes made.",
+        ))
     }
 }
 
