@@ -1,7 +1,9 @@
 use crate::path::{
-    add_to_path, change_priority, clean_path, make_abs_path, read_path, rm_from_path,
+    add_to_path, change_priority, clean_path, make_abs_path, read_old_path, read_path, revert_path,
+    rm_from_path,
 };
 use clap::{crate_description, crate_name, crate_version, App, Arg, ArgMatches, SubCommand};
+use std::ffi::OsString;
 use std::io::{Error, ErrorKind};
 use std::path::PathBuf;
 
@@ -46,7 +48,7 @@ fn parse_cli() -> ArgMatches<'static> {
                 .visible_alias("del")
                 .arg(
                     Arg::with_name("dir")
-                        .help("Directory to add")
+                        .help("Directory to remove")
                         .required(true)
                         .takes_value(true)
                         .default_value("."),
@@ -121,6 +123,25 @@ fn parse_cli() -> ArgMatches<'static> {
             SubCommand::with_name("clean")
                 .about("Remove duplicates")
                 .visible_alias("dedup")
+                .arg(
+                    Arg::with_name("dryrun")
+                        .short("n")
+                        .long("dryrun")
+                        .takes_value(false)
+                        .help("Only show the changes to PATH, don't actually make changes to PATH"),
+                ),
+        )
+        .subcommand(
+            SubCommand::with_name("undo")
+                .about("Undo most recent changes to PATH")
+                .visible_alias("revert")
+                .arg(
+                    Arg::with_name("force")
+                        .short("f")
+                        .long("force")
+                        .takes_value(false)
+                        .help("Forefully revert to OLD_PATH, regardless of if it is empty"),
+                )
                 .arg(
                     Arg::with_name("dryrun")
                         .short("n")
@@ -214,6 +235,25 @@ pub fn cli_flow() -> Result<(), Error> {
             Ok(_) => {}
             Err(e) => eprintln!("Could not clean PATH. '{}'", e),
         };
+    } else if let Some(_o) = matches.subcommand_matches("undo") {
+        let oldpath = read_old_path();
+        let force = _o.is_present("force");
+        let dryrun = _o.is_present("dryrun");
+        match oldpath {
+            Some(op) => {
+                if op == OsString::from("") && !force {
+                    return Err(Error::new(ErrorKind::Other, "OLD_PATH is empty. If you are sure you want to revert to this, re-run with `-f/--force`."));
+                } else {
+                    return revert_path(dryrun);
+                }
+            }
+            None => {
+                return Err(Error::new(
+                    ErrorKind::Other,
+                    "OLD_PATH does not exist. Please create this variable before reverting.",
+                ));
+            }
+        }
     }
     Ok(())
 }
