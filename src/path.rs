@@ -41,6 +41,8 @@ fn replace_path(newpath: OsString, overwrite_old: bool, dryrun: bool) -> Result<
     if dryrun {
         println!("PATH before modifcation:\n\t{}", current_path);
         println!("PATH after modifcation:\n\t{}", newpath.to_str().unwrap());
+        // skip the remainder of the function
+        return Ok(());
     }
     // need to use Registry Editor to edit environment variables on Windows
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
@@ -65,6 +67,8 @@ fn replace_path(newpath: OsString, overwrite_old: bool, dryrun: bool) -> Result<
     if dryrun {
         println!("PATH before modifcation:\n\t{}", current_path);
         println!("PATH after modifcation:\n\t{}", newpath.to_str().unwrap());
+        // skip the remainder of the function
+        return Ok(());
     }
     // check if OLD_PATH is written to properly before overwriting current PATH
     // need to have this as an optional step if we want to be able to undo and replace PATH with OLD_PATH
