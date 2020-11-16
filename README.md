@@ -23,7 +23,7 @@ cargo build --release
 ## Usage
 
 ```shell
-pad-path 0.1.1
+pad-path 0.1.2
 Intuitively modify your `$PATH`
 
 USAGE:
@@ -40,5 +40,6 @@ SUBCOMMANDS:
     help     Prints this message or the help of the given subcommand(s)
     ls       List the directories in PATH [aliases: echo]
     rm       Remove a directory [aliases: del]
+    undo     Undo most recent changes to PATH [aliases: revert]
     up       Increase priority for a directory [aliases: inc]
 ```
