@@ -57,11 +57,12 @@ deploy:
   auth_token:
     secure: zuBCuL5kPOBkLWhSxk43eeadIuym+emdeknBBDtbjzkksfg2V6VvDGCK2K05ZP4e
   provider: GitHub
+  tag: $(APPVEYOR_REPO_TAG_NAME)
   # deploy when a new tag is pushed and only on the stable channel
   on:
     # channel to use to produce the release artifacts
     CHANNEL: stable
-    appveyor_repo_tag: true
+    appveyor_repo_tag: true # deploy on tag push only
 
 branches:
   only:
