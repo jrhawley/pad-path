@@ -6,19 +6,10 @@ use std::fs::canonicalize;
 use std::io::{Error, ErrorKind};
 use std::path::PathBuf;
 
-#[cfg(target_os = "macos")]
-use std::env::set_var;
-#[cfg(target_os = "linux")]
-use std::env::set_var;
 #[cfg(target_os = "windows")]
 use winreg::enums::*;
 #[cfg(target_os = "windows")]
 use winreg::RegKey;
-
-/// Get the value for the OLD_PATH environment variable
-pub fn read_raw_old_path() -> Option<OsString> {
-    var_os("OLD_PATH")
-}
 
 /// Get the value for the PATH environment variable
 fn read_raw_path() -> Option<OsString> {
@@ -43,7 +34,7 @@ pub fn read_path() -> Vec<PathBuf> {
 
 /// Replace the PATH evironment variable on Windows
 #[cfg(target_os = "windows")]
-fn replace_path(newpath: OsString, overwrite_old: bool, dryrun: bool) -> Result<(), Error> {
+fn replace_path(newpath: OsString, dryrun: bool) -> Result<(), Error> {
     let current_path = String::from(read_raw_path().unwrap().to_str().unwrap());
     if dryrun {
         println!("PATH before modifcation:\n\t{}", &current_path);
@@ -69,7 +60,7 @@ fn replace_path(newpath: OsString, overwrite_old: bool, dryrun: bool) -> Result<
 
 /// Replace the PATH environment variable on non-Windows devices
 #[cfg(not(target_os = "windows"))]
-fn replace_path(newpath: OsString, overwrite_old: bool, dryrun: bool) -> Result<(), Error> {
+fn replace_path(newpath: OsString, dryrun: bool) -> Result<(), Error> {
     let current_path = String::from(read_raw_path().unwrap().to_str().unwrap());
     if dryrun {
         println!("PATH before modifcation:\n\t{}", &current_path);
@@ -119,7 +110,7 @@ pub fn add_to_path(dir: PathBuf, prepend: bool, dryrun: bool) -> Result<(), Erro
             join_paths(current_path).unwrap()
         }
     };
-    replace_path(newpath, true, dryrun)
+    replace_path(newpath, dryrun)
 }
 
 /// Remove the given directory to the PATH environment variable
@@ -131,7 +122,7 @@ pub fn rm_from_path(dir: PathBuf, dryrun: bool) -> Result<(), Error> {
         let mut vpath = current_path.clone();
         vpath.remove(i);
         let newpath = join_paths(vpath).unwrap();
-        replace_path(newpath, true, dryrun)
+        replace_path(newpath, dryrun)
     } else {
         Err(Error::new(
             ErrorKind::NotFound,
@@ -205,7 +196,7 @@ pub fn change_priority(dir: PathBuf, jump: i8, dryrun: bool) -> Result<(), Error
             );
         }
         let newpath = join_paths(vpath).unwrap();
-        replace_path(newpath, true, dryrun)
+        replace_path(newpath, dryrun)
     } else {
         Err(Error::new(
             ErrorKind::NotFound,
@@ -226,16 +217,5 @@ pub fn clean_path(dryrun: bool) -> Result<(), Error> {
         .unique()
         .collect();
     let newpath = join_paths(vpath).unwrap();
-    replace_path(newpath, true, dryrun)
-}
-
-/// Undo recent changes and replace PATH with OLD_PATH
-pub fn revert_path(dryrun: bool) -> Result<(), Error> {
-    match read_raw_old_path() {
-        Some(oldpath) => replace_path(oldpath, false, dryrun),
-        None => Err(Error::new(
-            ErrorKind::NotFound,
-            "OLD_PATH not found or is empty. Not reverting.",
-        )),
-    }
+    replace_path(newpath, dryrun)
 }

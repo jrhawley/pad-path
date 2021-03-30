@@ -1,5 +1,5 @@
 use crate::path::{
-    add_to_path, change_priority, clean_path, make_abs_path, read_old_path, read_path, revert_path,
+    add_to_path, change_priority, clean_path, make_abs_path, read_path,
     rm_from_path,
 };
 use clap::{crate_description, crate_name, crate_version, App, Arg, ArgMatches, SubCommand};
@@ -133,36 +133,9 @@ fn parse_cli() -> ArgMatches<'static> {
                 ),
         )
         .subcommand(
-            SubCommand::with_name("undo")
-                .about("Undo most recent changes to PATH")
-                .visible_alias("revert")
-                .arg(
-                    Arg::with_name("force")
-                        .short("f")
-                        .long("force")
-                        .takes_value(false)
-                        .help("Forefully revert to OLD_PATH, regardless of if it is empty"),
-                )
-                .arg(
-                    Arg::with_name("dryrun")
-                        .short("n")
-                        .long("dryrun")
-                        .takes_value(false)
-                        .help("Only show the changes to PATH, don't actually make changes to PATH"),
-                ),
-        )
-        .subcommand(
             SubCommand::with_name("ls")
                 .about("List the directories in PATH")
                 .visible_alias("echo")
-                .arg(
-                    Arg::with_name("old")
-                        .short("o")
-                        .long("--old")
-                        .takes_value(false)
-                        .required(false)
-                        .help("Show OLD_PATH instead of PATH"),
-                ),
         )
         .get_matches();
     matches
@@ -171,11 +144,7 @@ fn parse_cli() -> ArgMatches<'static> {
 pub fn cli_flow() -> Result<(), Error> {
     let matches = parse_cli();
     if let Some(_o) = matches.subcommand_matches("ls") {
-        let show_old = _o.is_present("old");
-        let vpath = match show_old {
-            true => read_old_path(),
-            false => read_path(),
-        };
+        let vpath = read_path();
         for p in &vpath {
             println!("{}", p.display());
         }
@@ -248,21 +217,6 @@ pub fn cli_flow() -> Result<(), Error> {
             Ok(_) => {}
             Err(e) => eprintln!("Could not clean PATH. '{}'", e),
         };
-    } else if let Some(_o) = matches.subcommand_matches("undo") {
-        let oldpath = read_old_path();
-        let force = _o.is_present("force");
-        let dryrun = _o.is_present("dryrun");
-        // check if OLD_PATH is empty
-        if oldpath == vec![PathBuf::from("")] {
-            if !force {
-                return Err(Error::new(
-                    ErrorKind::Other,
-                    "OLD_PATH not found or is empty. If you are sure you want to revert to this, re-run with `-f/--force`.")
-                );
-            }
-            return revert_path(dryrun);
-        }
-        return revert_path(dryrun);
     }
     Ok(())
 }
