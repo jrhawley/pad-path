@@ -16,14 +16,6 @@ fn read_raw_path() -> Option<OsString> {
     var_os("PATH")
 }
 
-/// Get the value for the OLD_PATH environment variable, split across a vector
-pub fn read_old_path() -> Vec<PathBuf> {
-    match read_raw_old_path() {
-        Some(path_str) => split_paths(&path_str).into_iter().collect(),
-        None => vec![PathBuf::from("")],
-    }
-}
-
 /// Get the value for the PATH environment variable, split across a vector
 pub fn read_path() -> Vec<PathBuf> {
     match read_raw_path() {
@@ -62,18 +54,12 @@ fn replace_path(newpath: OsString, dryrun: bool) -> Result<(), Error> {
 #[cfg(not(target_os = "windows"))]
 fn replace_path(newpath: OsString, dryrun: bool) -> Result<(), Error> {
     let current_path = String::from(read_raw_path().unwrap().to_str().unwrap());
+    let _new_path = String::from(newpath.to_str().unwrap());
     if dryrun {
         println!("PATH before modifcation:\n\t{}", &current_path);
-        println!("PATH after modifcation:\n\t{}", newpath.to_str().unwrap());
-        // skip the remainder of the function
-        return Ok(());
+        println!("PATH after modifcation:\n\t{}", &_new_path);
     }
-    // check if OLD_PATH is written to properly before overwriting current PATH
-    // need to have this as an optional step if we want to be able to undo and replace PATH with OLD_PATH
-    if overwrite_old {
-        set_var("OLD_PATH", &current_path);
-    }
-    set_var("PATH", newpath);
+    println!("{}", &_new_path);
     Ok(())
 }
 
