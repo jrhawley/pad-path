@@ -23,7 +23,6 @@ cargo build --release
 ## Usage
 
 ```shell
-pad-path 0.1.5
 Intuitively modify your `$PATH`
 
 USAGE:
