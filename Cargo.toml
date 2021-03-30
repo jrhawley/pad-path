@@ -1,7 +1,7 @@
 [package]
 name = "pad-path"
 version = "0.1.5"
-authors = ["James Hawley <jamesrichardhawley@gmail.com>"]
+authors = ["James Hawley <developer@jrhawley.ca>"]
 edition = "2018"
 description = "Intuitively modify your `$PATH`"
 license = "MIT"
@@ -21,9 +21,6 @@ include = [
 [dependencies]
 clap = "2"
 itertools = "0.9"
-
-[target.'cfg(windows)'.dependencies]
-winreg = "0.7"
 
 [[bin]]
 name = "pad"

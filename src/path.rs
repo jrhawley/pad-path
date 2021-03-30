@@ -6,11 +6,6 @@ use std::fs::canonicalize;
 use std::io::{Error, ErrorKind};
 use std::path::PathBuf;
 
-#[cfg(target_os = "windows")]
-use winreg::enums::*;
-#[cfg(target_os = "windows")]
-use winreg::RegKey;
-
 /// Get the value for the PATH environment variable
 fn read_raw_path() -> Option<OsString> {
     var_os("PATH")
@@ -30,16 +25,13 @@ fn replace_path(newpath: OsString, dryrun: bool) -> Result<(), Error> {
     let current_path = String::from(read_raw_path().unwrap().to_str().unwrap());
     let _new_path = String::from(newpath.to_str().unwrap());
     if dryrun {
-        println!("PATH before modification:\n\t{}", &current_path);
-        println!("PATH after modification:\n\t{}", &_new_path);
+        eprintln!("PATH before modification:\n\t{}", &current_path);
+        eprintln!("PATH after modification:\n\t{}", &_new_path);
         // skip the remainder of the function
         return Ok(());
     }
-    // need to use Registry Editor to edit environment variables on Windows
-    let hkcu = RegKey::predef(HKEY_CURRENT_USER);
-    let (env, _) = hkcu.create_subkey("Environment").unwrap();
-    // perform the actual write operation to PATH
-    env.set_value("PATH", &String::from(_new_path))
+    println!("{}", &_new_path);
+    Ok(())
 }
 
 /// Replace the PATH environment variable on non-Windows devices
@@ -48,8 +40,10 @@ fn replace_path(newpath: OsString, dryrun: bool) -> Result<(), Error> {
     let current_path = String::from(read_raw_path().unwrap().to_str().unwrap());
     let _new_path = String::from(newpath.to_str().unwrap());
     if dryrun {
-        println!("PATH before modification:\n\t{}", &current_path);
-        println!("PATH after modification:\n\t{}", &_new_path);
+        eprintln!("PATH before modification:\n\t{}", &current_path);
+        eprintln!("PATH after modification:\n\t{}", &_new_path);
+        // skip the remainder of the function
+        return Ok(());
     }
     println!("{}", &_new_path);
     Ok(())
