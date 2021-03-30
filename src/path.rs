@@ -24,30 +24,22 @@ pub fn read_path() -> Vec<PathBuf> {
     }
 }
 
-/// Replace the PATH evironment variable on Windows
+/// Replace the PATH environment variable on Windows
 #[cfg(target_os = "windows")]
 fn replace_path(newpath: OsString, dryrun: bool) -> Result<(), Error> {
     let current_path = String::from(read_raw_path().unwrap().to_str().unwrap());
+    let _new_path = String::from(newpath.to_str().unwrap());
     if dryrun {
         println!("PATH before modification:\n\t{}", &current_path);
-        println!("PATH after modification:\n\t{}", newpath.to_str().unwrap());
+        println!("PATH after modification:\n\t{}", &_new_path);
         // skip the remainder of the function
         return Ok(());
     }
     // need to use Registry Editor to edit environment variables on Windows
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
     let (env, _) = hkcu.create_subkey("Environment").unwrap();
-    // check if OLD_PATH is written to properly before overwriting current PATH
-    // need to have this as an optional step if we want to be able to undo and replace PATH with OLD_PATH
-    if overwrite_old {
-        match env.set_value("OLD_PATH", &current_path) {
-            // if no issues with saving the variable, continue, otherwise throw error
-            Ok(_) => {}
-            Err(e) => return Err(e),
-        };
-    }
     // perform the actual write operation to PATH
-    env.set_value("PATH", &String::from(newpath.to_str().unwrap()))
+    env.set_value("PATH", &String::from(_new_path))
 }
 
 /// Replace the PATH environment variable on non-Windows devices
