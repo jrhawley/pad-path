@@ -29,8 +29,8 @@ pub fn read_path() -> Vec<PathBuf> {
 fn replace_path(newpath: OsString, dryrun: bool) -> Result<(), Error> {
     let current_path = String::from(read_raw_path().unwrap().to_str().unwrap());
     if dryrun {
-        println!("PATH before modifcation:\n\t{}", &current_path);
-        println!("PATH after modifcation:\n\t{}", newpath.to_str().unwrap());
+        println!("PATH before modification:\n\t{}", &current_path);
+        println!("PATH after modification:\n\t{}", newpath.to_str().unwrap());
         // skip the remainder of the function
         return Ok(());
     }
@@ -56,8 +56,8 @@ fn replace_path(newpath: OsString, dryrun: bool) -> Result<(), Error> {
     let current_path = String::from(read_raw_path().unwrap().to_str().unwrap());
     let _new_path = String::from(newpath.to_str().unwrap());
     if dryrun {
-        println!("PATH before modifcation:\n\t{}", &current_path);
-        println!("PATH after modifcation:\n\t{}", &_new_path);
+        println!("PATH before modification:\n\t{}", &current_path);
+        println!("PATH after modification:\n\t{}", &_new_path);
     }
     println!("{}", &_new_path);
     Ok(())
