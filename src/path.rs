@@ -68,7 +68,12 @@ pub fn add_to_path(dirs: &mut Vec<PathBuf>, prepend: bool, dryrun: bool) -> Resu
     let _current_dirs: HashSet<PathBuf> = current_path.iter().map(|d| d.clone()).collect();
     let _new_dirs: HashSet<PathBuf> = cleaned_dirs.iter().map(|d| d.clone()).collect();
     if !_current_dirs.is_disjoint(&_new_dirs) {
-        return Err(Error::new(ErrorKind::AlreadyExists, "Directory already exists in PATH. Use `pad up/dn` to change priority of this directory."));
+        return Err(
+            Error::new(
+                ErrorKind::AlreadyExists,
+                "Directory already exists in PATH. Use `pad up/dn` to change priority of this directory. No changes made."
+            )
+        );
     }
     let newpath = match prepend {
         true => {
