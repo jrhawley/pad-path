@@ -73,7 +73,7 @@ checksum = "8916b1f6ca17130ec6568feccee27c156ad12037880833a3b842a823236502e7"
 
 [[package]]
 name = "pad-path"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "clap",
  "itertools",
