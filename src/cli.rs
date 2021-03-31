@@ -1,5 +1,5 @@
 use crate::path::{
-    add_to_path, change_priority, clean_path, make_abs_path, read_path,
+    add_to_path, change_priority, clean_path, read_path,
     rm_from_path,
 };
 use clap::{crate_description, crate_name, crate_version, App, Arg, ArgMatches, SubCommand};
@@ -159,20 +159,17 @@ pub fn cli_flow() -> Result<(), Error> {
                 "Invalid input. Please double check the directories you intend to add."
             ));
         }
-        let indirs: Vec<PathBuf> = indir.unwrap().map(|d| PathBuf::from(d)).collect();
+        let mut indirs: Vec<PathBuf> = indir.unwrap().map(|d| PathBuf::from(d)).collect();
         let prepend = _o.is_present("prepend");
         let dryrun = _o.is_present("dryrun");
 
-        // convert to absolute path
-        let mut abs_dirs: Vec<PathBuf> = indirs.iter().map(|d| make_abs_path(&d)).collect();
-
         // check for the existence of directories to be added
-        let _all_dirs_exist = abs_dirs.iter().any(|d| d.exists());
+        let _all_dirs_exist = indirs.iter().any(|d| d.exists());
 
         if !_all_dirs_exist {
             // proceed if `--force` is supplied
             if _o.is_present("force") {
-                return add_to_path(&mut abs_dirs, prepend, dryrun);
+                return add_to_path(&mut indirs, prepend, dryrun);
             } else {
                 // don't proceed, tell the user to try again
                 return Err(Error::new(
@@ -181,16 +178,13 @@ pub fn cli_flow() -> Result<(), Error> {
                 ));
             }
         } else {
-            return add_to_path(&mut abs_dirs, prepend, dryrun);
+            return add_to_path(&mut indirs, prepend, dryrun);
         }
     } else if let Some(_o) = matches.subcommand_matches("rm") {
         // read command line options
         let indir = PathBuf::from(_o.value_of("dir").unwrap());
         let dryrun = _o.is_present("dryrun");
-
-        // convert to absolute directory
-        let abs_dir = make_abs_path(&indir);
-        return rm_from_path(abs_dir, dryrun);
+        return rm_from_path(indir, dryrun);
     } else if let Some(_o) = matches.subcommand_matches("up") {
         // read command line options
         let indir = PathBuf::from(_o.value_of("dir").unwrap());
@@ -205,9 +199,7 @@ pub fn cli_flow() -> Result<(), Error> {
         };
         let dryrun = _o.is_present("dryrun");
 
-        // convert to absolute directory
-        let abs_dir = make_abs_path(&indir);
-        return change_priority(abs_dir, -1 * (jump as i8), dryrun);
+        return change_priority(indir, -1 * (jump as i8), dryrun);
     } else if let Some(_o) = matches.subcommand_matches("dn") {
         // read command line options
         let indir = PathBuf::from(_o.value_of("dir").unwrap());
@@ -222,9 +214,7 @@ pub fn cli_flow() -> Result<(), Error> {
         };
         let dryrun = _o.is_present("dryrun");
 
-        // convert to absolute directory
-        let abs_dir = make_abs_path(&indir);
-        return change_priority(abs_dir, jump as i8, dryrun);
+        return change_priority(indir, jump as i8, dryrun);
     } else if let Some(_o) = matches.subcommand_matches("clean") {
         let dryrun = _o.is_present("dryrun");
         match clean_path(dryrun) {
