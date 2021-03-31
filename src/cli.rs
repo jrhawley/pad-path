@@ -18,6 +18,7 @@ fn parse_cli() -> ArgMatches<'static> {
                         .help("Directory to add")
                         .required(true)
                         .takes_value(true)
+                        .multiple(true)
                         .default_value("."),
                 )
                 .arg(
@@ -50,6 +51,7 @@ fn parse_cli() -> ArgMatches<'static> {
                         .help("Directory to remove")
                         .required(true)
                         .takes_value(true)
+                        .multiple(true)
                         .default_value("."),
                 )
                 .arg(
@@ -150,24 +152,36 @@ pub fn cli_flow() -> Result<(), Error> {
         }
     } else if let Some(_o) = matches.subcommand_matches("add") {
         // read command line options
-        let indir = PathBuf::from(_o.value_of("dir").unwrap());
+        let indir = _o.values_of("dir");
+        if indir.is_none() {
+            return Err(Error::new(
+                ErrorKind::InvalidInput,
+                "Invalid input. Please double check the directories you intend to add."
+            ));
+        }
+        let indirs: Vec<PathBuf> = indir.unwrap().map(|d| PathBuf::from(d)).collect();
         let prepend = _o.is_present("prepend");
         let dryrun = _o.is_present("dryrun");
 
-        // convert to absolute directory
-        let abs_dir = make_abs_path(&indir);
+        // convert to absolute path
+        let mut abs_dirs: Vec<PathBuf> = indirs.iter().map(|d| make_abs_path(&d)).collect();
 
-        if !abs_dir.exists() {
+        // check for the existence of directories to be added
+        let _all_dirs_exist = abs_dirs.iter().any(|d| d.exists());
+
+        if !_all_dirs_exist {
+            // proceed if `--force` is supplied
             if _o.is_present("force") {
-                return add_to_path(abs_dir, prepend, dryrun);
+                return add_to_path(&mut abs_dirs, prepend, dryrun);
             } else {
+                // don't proceed, tell the user to try again
                 return Err(Error::new(
                     ErrorKind::NotFound,
                     "Directory does not exist. If you still want to add this, re-run with `-f/--force`."
                 ));
             }
         } else {
-            return add_to_path(abs_dir, prepend, dryrun);
+            return add_to_path(&mut abs_dirs, prepend, dryrun);
         }
     } else if let Some(_o) = matches.subcommand_matches("rm") {
         // read command line options

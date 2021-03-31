@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use std::cmp::min;
+use std::{cmp::min, collections::HashSet};
 use std::env::{current_dir, join_paths, split_paths, var_os};
 use std::ffi::OsString;
 use std::fs::canonicalize;
@@ -65,20 +65,23 @@ pub fn make_abs_path(p: &PathBuf) -> PathBuf {
 }
 
 /// Add the given directory to the PATH environment variable
-pub fn add_to_path(dir: PathBuf, prepend: bool, dryrun: bool) -> Result<(), Error> {
+pub fn add_to_path(dirs: &mut Vec<PathBuf>, prepend: bool, dryrun: bool) -> Result<(), Error> {
     // read the path and convert into Vec<&PathBuf>
     let mut current_path: Vec<PathBuf> = read_path();
-    if let Some(_) = current_path.iter().position(|x| *x == dir) {
+
+    // check that the directories to be added don't alread exist in the PATH
+    let _current_dirs: HashSet<PathBuf> = current_path.iter().map(|d| d.clone()).collect();
+    let _new_dirs: HashSet<PathBuf> = dirs.iter().map(|d| d.clone()).collect();
+    if !_current_dirs.is_disjoint(&_new_dirs) {
         return Err(Error::new(ErrorKind::AlreadyExists, "Directory already exists in PATH. Use `pad up/dn` to change priority of this directory."));
     }
     let newpath = match prepend {
         true => {
-            let mut all_paths = vec![dir];
-            all_paths.append(&mut current_path);
-            join_paths(all_paths).unwrap()
+            dirs.append(&mut current_path);
+            join_paths(dirs).unwrap()
         }
         false => {
-            current_path.push(dir);
+            current_path.append(dirs);
             join_paths(current_path).unwrap()
         }
     };
