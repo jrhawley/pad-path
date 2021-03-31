@@ -13,7 +13,7 @@ use std::os::windows::ffi::OsStrExt;
 use std::os::unix::ffi::OsStrExt;
 
 /// Get the value for the PATH environment variable
-fn read_raw_path() -> Option<OsString> {
+pub fn read_raw_path() -> Option<OsString> {
     var_os("PATH")
 }
 
