@@ -17,7 +17,7 @@ cargo install pad-path
 ```shell
 git clone https://github.com/jrhawley/pad-path
 cd pad-path
-cargo build --release
+cargo install --path .
 ```
 
 ## Usage
