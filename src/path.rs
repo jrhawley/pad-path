@@ -20,7 +20,10 @@ fn read_raw_path() -> Option<OsString> {
 /// Get the value for the PATH environment variable, split across a vector
 pub fn read_path() -> Vec<PathBuf> {
     match read_raw_path() {
-        Some(path_str) => split_paths(&path_str).into_iter().collect(),
+        Some(path_str) => split_paths(&path_str)
+            .into_iter()
+            .map(|d| clean_dir_name(d))
+            .collect(),
         None => vec![PathBuf::from("")],
     }
 }
@@ -58,7 +61,7 @@ fn replace_path(newpath: OsString, dryrun: bool) -> Result<(), Error> {
 /// Add the given directory to the PATH environment variable
 pub fn add_to_path(dirs: &mut Vec<PathBuf>, prepend: bool, dryrun: bool) -> Result<(), Error> {
     // read the path, clean each entry, and convert into Vec<PathBuf>
-    let mut current_path: Vec<PathBuf> = read_path().iter().map(|d| clean_dir_name(d)).collect();
+    let mut current_path: Vec<PathBuf> = read_path();
     let mut cleaned_dirs: Vec<PathBuf> = dirs.iter().map(|d| clean_dir_name(d)).collect();
 
     // check that the directories to be added don't alread exist in the PATH
@@ -225,6 +228,7 @@ fn has_trailing_slash<P: AsRef<Path>>(p: P) -> bool {
     // Windows can have '/' or '\' as its trailing character
     last == Some(b'\\' as u16) || last == Some(b'/' as u16)
 }
+/// Check if a directory Path contains the trailing separator
 #[cfg(unix)]
 fn has_trailing_slash<P: AsRef<Path>>(p: P) -> bool {
     p.as_ref().as_os_str().as_bytes().last() == Some(&b'/')
