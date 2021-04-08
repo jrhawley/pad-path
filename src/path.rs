@@ -78,7 +78,7 @@ pub fn add_to_path(dirs: &mut Vec<PathBuf>, prepend: bool, dryrun: bool) -> Resu
     let newpath = match prepend {
         true => {
             cleaned_dirs.append(&mut current_path);
-            join_paths(dirs).unwrap()
+            join_paths(cleaned_dirs).unwrap()
         }
         false => {
             current_path.append(&mut cleaned_dirs);
@@ -238,3 +238,4 @@ fn has_trailing_slash<P: AsRef<Path>>(p: P) -> bool {
 fn has_trailing_slash<P: AsRef<Path>>(p: P) -> bool {
     p.as_ref().as_os_str().as_bytes().last() == Some(&b'/')
 }
+
