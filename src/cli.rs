@@ -3,7 +3,7 @@ use crate::path::{
     rm_from_path,
 };
 use clap::{crate_description, crate_name, crate_version, App, Arg, ArgMatches, SubCommand};
-use std::io::{Error, ErrorKind};
+use std::{io::{Error, ErrorKind}, path::Path};
 use std::path::PathBuf;
 
 fn parse_cli() -> ArgMatches<'static> {
@@ -164,7 +164,8 @@ pub fn cli_flow() -> Result<(), Error> {
         let dryrun = _o.is_present("dryrun");
 
         // check for the existence of directories to be added
-        let _all_dirs_exist = indirs.iter().any(|d| d.exists());
+        let missing_dirs: Vec<&Path> = indirs.iter().filter(|&d| !d.exists()).map(|d| d.as_path()).collect();
+        let _all_dirs_exist = missing_dirs.len() == 0;
 
         if !_all_dirs_exist {
             // proceed if `--force` is supplied
@@ -174,7 +175,7 @@ pub fn cli_flow() -> Result<(), Error> {
                 // don't proceed, tell the user to try again
                 return Err(Error::new(
                     ErrorKind::NotFound,
-                    "Directory does not exist. If you still want to add this, re-run with `-f/--force`."
+                    format!("Directory `{}` does not exist. If you still want to add this, re-run with `-f/--force`.", missing_dirs[0].display())
                 ));
             }
         } else {
