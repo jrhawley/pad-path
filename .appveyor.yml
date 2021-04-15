@@ -5,11 +5,7 @@ environment:
     PROJECT_NAME: pad-path
   matrix:
     # Stable channel
-    - TARGET: i686-pc-windows-gnu
-      CHANNEL: stable
     - TARGET: i686-pc-windows-msvc
-      CHANNEL: stable
-    - TARGET: x86_64-pc-windows-gnu
       CHANNEL: stable
     - TARGET: x86_64-pc-windows-msvc
       CHANNEL: stable
@@ -62,11 +58,5 @@ deploy:
   on:
     # channel to use to produce the release artifacts
     CHANNEL: stable
-    appveyor_repo_tag: true # deploy on tag push only
+    APPVEYOR_REPO_TAG: true # deploy on tag push only
 
-branches:
-  only:
-    - master
-    # IMPORTANT Regex to match tags. Required, or appveyor may not trigger deploys when a new tag
-    # is pushed. This regex matches semantic versions like v1.2.3-rc4+2016.02.22
-    - /^v\d+\.\d+\.\d+.*$/
