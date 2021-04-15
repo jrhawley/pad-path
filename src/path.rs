@@ -102,7 +102,7 @@ pub fn rm_from_path(dir: PathBuf, dryrun: bool) -> Result<(), Error> {
     } else {
         Err(Error::new(
             ErrorKind::NotFound,
-            "Directory not found in PATH. No changes made.",
+            format!("Directory `{}` not found in PATH. No changes made.", dir.display())
         ))
     }
 }
@@ -176,7 +176,7 @@ pub fn change_priority(dir: PathBuf, jump: i8, dryrun: bool) -> Result<(), Error
     } else {
         Err(Error::new(
             ErrorKind::NotFound,
-            "Directory not found in PATH. No changes made.",
+            format!("Directory `{}` not found in PATH. No changes made.", dir.display())
         ))
     }
 }
