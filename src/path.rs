@@ -28,7 +28,7 @@ pub fn read_path() -> Vec<PathBuf> {
     }
 }
 
-/// Replace the PATH environment variable on Windows
+/// Replace the PATH environment variable
 #[cfg(target_os = "windows")]
 fn replace_path(newpath: OsString, dryrun: bool) -> Result<(), Error> {
     let current_path = String::from(read_raw_path().unwrap().to_str().unwrap());
@@ -43,7 +43,7 @@ fn replace_path(newpath: OsString, dryrun: bool) -> Result<(), Error> {
     Ok(())
 }
 
-/// Replace the PATH environment variable on non-Windows devices
+/// Replace the PATH environment variable
 #[cfg(not(target_os = "windows"))]
 fn replace_path(newpath: OsString, dryrun: bool) -> Result<(), Error> {
     let current_path = String::from(read_raw_path().unwrap().to_str().unwrap());

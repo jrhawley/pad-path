@@ -7,9 +7,9 @@ use std::{
 };
 
 mod path;
-
 use crate::path::read_raw_path;
 
+/// Parse command line arguments and return the parsed ArgMatches object
 fn parse_cli() -> ArgMatches<'static> {
     let matches = App::new(crate_name!())
         .about(crate_description!())
@@ -147,6 +147,8 @@ fn parse_cli() -> ArgMatches<'static> {
     matches
 }
 
+/// Execute the command issued from the command line.
+/// Parsing of the arguments is explicitly done by `parse_cli`.
 fn execute_cli() -> Result<(), Error> {
     let matches = parse_cli();
     if let Some(_o) = matches.subcommand_matches("ls") {
