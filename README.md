@@ -96,7 +96,6 @@ Similarly, in PowerShell, you can assign the output of a `pad-path` command to `
 > pad ls
 C:\WINDOWS\system32
 C:\WINDOWS
-C:\WINDOWS\System32\Wbem
 C:\WINDOWS\System32\WindowsPowerShell\v1.0
 C:\WINDOWS\System32\OpenSSH
 C:\Program Files\dotnet
@@ -108,7 +107,6 @@ C:\Program Files\dotnet
 > pad ls
 C:\WINDOWS\system32
 C:\WINDOWS
-C:\WINDOWS\System32\Wbem
 C:\WINDOWS\System32\WindowsPowerShell\v1.0
 C:\WINDOWS\System32\OpenSSH
 C:\Program Files\dotnet

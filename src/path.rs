@@ -5,12 +5,12 @@ use std::env::{current_dir, join_paths, split_paths, var_os};
 use std::ffi::OsString;
 use std::fs::canonicalize;
 use std::io::{Error, ErrorKind};
-use std::path::{MAIN_SEPARATOR, Path, PathBuf};
+use std::path::{Path, PathBuf, MAIN_SEPARATOR};
 
-#[cfg(target_os = "windows")]
-use std::os::windows::ffi::OsStrExt;
 #[cfg(not(target_os = "windows"))]
 use std::os::unix::ffi::OsStrExt;
+#[cfg(target_os = "windows")]
+use std::os::windows::ffi::OsStrExt;
 
 /// Get the value for the PATH environment variable
 pub fn read_raw_path() -> Option<OsString> {
@@ -64,10 +64,14 @@ pub fn add_to_path(dirs: &mut Vec<PathBuf>, prepend: bool, dryrun: bool) -> Resu
     let mut current_path: Vec<PathBuf> = read_path();
     let mut cleaned_dirs: Vec<PathBuf> = dirs.iter().map(|d| clean_dir_name(d)).collect();
 
-    // check that the directories to be added don't alread exist in the PATH
+    // check that the directories to be added don't already exist in the PATH
     let _current_dirs: HashSet<PathBuf> = current_path.iter().map(|d| d.clone()).collect();
     let _new_dirs: HashSet<PathBuf> = cleaned_dirs.iter().map(|d| d.clone()).collect();
-    let _intersecting_dirs: Vec<&Path> = _current_dirs.intersection(&_new_dirs).into_iter().map(|d| d.as_path()).collect();
+    let _intersecting_dirs: Vec<&Path> = _current_dirs
+        .intersection(&_new_dirs)
+        .into_iter()
+        .map(|d| d.as_path())
+        .collect();
     if _intersecting_dirs.len() > 0 {
         return Err(
             Error::new(
@@ -102,7 +106,10 @@ pub fn rm_from_path(dir: PathBuf, dryrun: bool) -> Result<(), Error> {
     } else {
         Err(Error::new(
             ErrorKind::NotFound,
-            format!("Directory `{}` not found in PATH. No changes made.", dir.display())
+            format!(
+                "Directory `{}` not found in PATH. No changes made.",
+                dir.display()
+            ),
         ))
     }
 }
@@ -176,7 +183,10 @@ pub fn change_priority(dir: PathBuf, jump: i8, dryrun: bool) -> Result<(), Error
     } else {
         Err(Error::new(
             ErrorKind::NotFound,
-            format!("Directory `{}` not found in PATH. No changes made.", dir.display())
+            format!(
+                "Directory `{}` not found in PATH. No changes made.",
+                dir.display()
+            ),
         ))
     }
 }
@@ -201,13 +211,14 @@ pub fn clean_path(dryrun: bool) -> Result<(), Error> {
 fn clean_dir_name<P: AsRef<Path>>(dir: P) -> PathBuf {
     let _cleaned_dir = match has_trailing_slash(&dir) {
         true => {
-            let mut _temp_dir = dir.as_ref()
+            let mut _temp_dir = dir
+                .as_ref()
                 .to_string_lossy()
                 .trim_end_matches(MAIN_SEPARATOR)
                 .to_string();
             PathBuf::from(_temp_dir)
-        },
-        false => dir.as_ref().to_path_buf()
+        }
+        false => dir.as_ref().to_path_buf(),
     };
     make_abs_path(&_cleaned_dir)
 }
@@ -239,4 +250,3 @@ fn has_trailing_slash<P: AsRef<Path>>(p: P) -> bool {
 fn has_trailing_slash<P: AsRef<Path>>(p: P) -> bool {
     p.as_ref().as_os_str().as_bytes().last() == Some(&b'/')
 }
-
