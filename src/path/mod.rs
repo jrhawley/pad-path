@@ -1,62 +1,25 @@
+//! Functions for reading, writing, and processing the current PATH
+
 use itertools::Itertools;
 use std::cmp::min;
 use std::collections::HashSet;
-use std::env::{current_dir, join_paths, split_paths, var_os};
-use std::ffi::OsString;
+use std::env::{current_dir, join_paths};
 use std::fs::canonicalize;
 use std::io::{Error, ErrorKind};
 use std::path::{Path, PathBuf, MAIN_SEPARATOR};
 
-#[cfg(not(target_os = "windows"))]
+pub mod history;
+pub mod read;
+pub mod write;
+
+#[cfg(target_os = "macos")]
+use std::os::macos::ffi::OsStrExt;
+#[cfg(target_os = "linux")]
 use std::os::unix::ffi::OsStrExt;
 #[cfg(target_os = "windows")]
 use std::os::windows::ffi::OsStrExt;
 
-/// Get the value for the PATH environment variable
-pub fn read_raw_path() -> Option<OsString> {
-    var_os("PATH")
-}
-
-/// Get the value for the PATH environment variable, split across a vector
-pub fn read_path() -> Vec<PathBuf> {
-    match read_raw_path() {
-        Some(path_str) => split_paths(&path_str)
-            .into_iter()
-            .map(|d| clean_dir_name(d))
-            .collect(),
-        None => vec![PathBuf::from("")],
-    }
-}
-
-/// Replace the PATH environment variable
-#[cfg(target_os = "windows")]
-fn replace_path(newpath: OsString, dryrun: bool) -> Result<(), Error> {
-    let current_path = String::from(read_raw_path().unwrap().to_str().unwrap());
-    let _new_path = String::from(newpath.to_str().unwrap());
-    if dryrun {
-        eprintln!("PATH before modification:\n\t{}", &current_path);
-        eprintln!("PATH after modification:\n\t{}", &_new_path);
-        // skip the remainder of the function
-        return Ok(());
-    }
-    println!("{}", &_new_path);
-    Ok(())
-}
-
-/// Replace the PATH environment variable
-#[cfg(not(target_os = "windows"))]
-fn replace_path(newpath: OsString, dryrun: bool) -> Result<(), Error> {
-    let current_path = String::from(read_raw_path().unwrap().to_str().unwrap());
-    let _new_path = String::from(newpath.to_str().unwrap());
-    if dryrun {
-        eprintln!("PATH before modification:\n\t{}", &current_path);
-        eprintln!("PATH after modification:\n\t{}", &_new_path);
-        // skip the remainder of the function
-        return Ok(());
-    }
-    println!("{}", &_new_path);
-    Ok(())
-}
+use self::{read::read_path, write::replace_path};
 
 /// Add the given directory to the PATH environment variable
 pub fn add_to_path(dirs: &mut Vec<PathBuf>, prepend: bool, dryrun: bool) -> Result<(), Error> {
