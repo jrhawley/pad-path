@@ -33,9 +33,9 @@ fn parse_cli() -> ArgMatches<'static> {
                         .help("Forcefully add a directory that doesn't exist"),
                 )
                 .arg(
-                    Arg::with_name("dryrun")
+                    Arg::with_name("dry_run")
                         .short("n")
-                        .long("dryrun")
+                        .long("dry-run")
                         .takes_value(false)
                         .help("Only show the changes to PATH, don't actually make changes to PATH"),
                 )
@@ -59,9 +59,9 @@ fn parse_cli() -> ArgMatches<'static> {
                         .default_value("."),
                 )
                 .arg(
-                    Arg::with_name("dryrun")
+                    Arg::with_name("dry_run")
                         .short("n")
-                        .long("dryrun")
+                        .long("dry-run")
                         .takes_value(false)
                         .help("Only show the changes to PATH, don't actually make changes to PATH"),
                 )
@@ -92,9 +92,9 @@ fn parse_cli() -> ArgMatches<'static> {
                         .default_value("1"),
                 )
                 .arg(
-                    Arg::with_name("dryrun")
+                    Arg::with_name("dry_run")
                         .short("n")
-                        .long("dryrun")
+                        .long("dry-run")
                         .takes_value(false)
                         .help("Only show the changes to PATH, don't actually make changes to PATH"),
                 ),
@@ -119,9 +119,9 @@ fn parse_cli() -> ArgMatches<'static> {
                         .default_value("1"),
                 )
                 .arg(
-                    Arg::with_name("dryrun")
+                    Arg::with_name("dry_run")
                         .short("n")
-                        .long("dryrun")
+                        .long("dry-run")
                         .takes_value(false)
                         .help("Only show the changes to PATH, don't actually make changes to PATH"),
                 ),
@@ -131,9 +131,9 @@ fn parse_cli() -> ArgMatches<'static> {
                 .about("Remove duplicates and non-existent directories")
                 .visible_alias("dedup")
                 .arg(
-                    Arg::with_name("dryrun")
+                    Arg::with_name("dry_run")
                         .short("n")
-                        .long("dryrun")
+                        .long("dry-run")
                         .takes_value(false)
                         .help("Only show the changes to PATH, don't actually make changes to PATH"),
                 ),
@@ -190,7 +190,7 @@ pub fn execute_cli() -> Result<(), Error> {
             }
             let mut indirs: Vec<PathBuf> = indir.unwrap().map(|d| PathBuf::from(d)).collect();
             let prepend = submatches.is_present("prepend");
-            let dryrun = submatches.is_present("dryrun");
+            let dry_run = submatches.is_present("dry_run");
 
             // check for the existence of directories to be added
             let missing_dirs: Vec<&Path> = indirs
@@ -203,7 +203,7 @@ pub fn execute_cli() -> Result<(), Error> {
             if !_all_dirs_exist {
                 // proceed if `--force` is supplied
                 if submatches.is_present("force") {
-                    return add_to_path(&mut indirs, prepend, dryrun);
+                    return add_to_path(&mut indirs, prepend, dry_run);
                 } else {
                     // don't proceed, tell the user to try again
                     return Err(Error::new(
@@ -212,14 +212,14 @@ pub fn execute_cli() -> Result<(), Error> {
                     ));
                 }
             } else {
-                return add_to_path(&mut indirs, prepend, dryrun);
+                return add_to_path(&mut indirs, prepend, dry_run);
             }
         }
         ("rm", Some(submatches)) => {
             // read command line options
             let indir = PathBuf::from(submatches.value_of("dir").unwrap());
-            let dryrun = submatches.is_present("dryrun");
-            return rm_from_path(indir, dryrun);
+            let dry_run = submatches.is_present("dry_run");
+            return rm_from_path(indir, dry_run);
         }
         ("up", Some(submatches)) => {
             // read command line options
@@ -233,9 +233,9 @@ pub fn execute_cli() -> Result<(), Error> {
                     ))
                 }
             };
-            let dryrun = submatches.is_present("dryrun");
+            let dry_run = submatches.is_present("dry_run");
 
-            return change_priority(indir, -1 * (jump as i8), dryrun);
+            return change_priority(indir, -1 * (jump as i8), dry_run);
         }
         ("dn", Some(submatches)) => {
             // read command line options
@@ -249,13 +249,13 @@ pub fn execute_cli() -> Result<(), Error> {
                     ))
                 }
             };
-            let dryrun = submatches.is_present("dryrun");
+            let dry_run = submatches.is_present("dry_run");
 
-            return change_priority(indir, jump as i8, dryrun);
+            return change_priority(indir, jump as i8, dry_run);
         }
         ("clean", Some(submatches)) => {
-            let dryrun = submatches.is_present("dryrun");
-            match clean_path(dryrun) {
+            let dry_run = submatches.is_present("dry_run");
+            match clean_path(dry_run) {
                 Ok(_) => {}
                 Err(e) => eprintln!("Could not clean PATH. '{}'", e),
             };
