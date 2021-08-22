@@ -172,92 +172,100 @@ fn parse_cli() -> ArgMatches<'static> {
 /// Parsing of the arguments is explicitly done by `parse_cli`.
 pub fn execute_cli() -> Result<(), Error> {
     let matches = parse_cli();
-    if let Some(_o) = matches.subcommand_matches("ls") {
-        let vpath = read_path();
-        for p in &vpath {
-            println!("{}", p.display());
+    match matches.subcommand() {
+        ("ls", Some(submatches)) => {
+            let vpath = read_path();
+            for p in &vpath {
+                println!("{}", p.display());
+            }
         }
-    } else if let Some(_o) = matches.subcommand_matches("add") {
-        // read command line options
-        let indir = _o.values_of("dir");
-        if indir.is_none() {
-            return Err(Error::new(
-                ErrorKind::InvalidInput,
-                "Invalid input. Please double check the directories you intend to add.",
-            ));
-        }
-        let mut indirs: Vec<PathBuf> = indir.unwrap().map(|d| PathBuf::from(d)).collect();
-        let prepend = _o.is_present("prepend");
-        let dryrun = _o.is_present("dryrun");
-
-        // check for the existence of directories to be added
-        let missing_dirs: Vec<&Path> = indirs
-            .iter()
-            .filter(|&d| !d.exists())
-            .map(|d| d.as_path())
-            .collect();
-        let _all_dirs_exist = missing_dirs.len() == 0;
-
-        if !_all_dirs_exist {
-            // proceed if `--force` is supplied
-            if _o.is_present("force") {
-                return add_to_path(&mut indirs, prepend, dryrun);
-            } else {
-                // don't proceed, tell the user to try again
+        ("add", Some(submatches)) => {
+            // read command line options
+            let indir = submatches.values_of("dir");
+            if indir.is_none() {
                 return Err(Error::new(
-                    ErrorKind::NotFound,
-                    format!("Directory `{}` does not exist. If you still want to add this, re-run with `-f/--force`.", missing_dirs[0].display())
+                    ErrorKind::InvalidInput,
+                    "Invalid input. Please double check the directories you intend to add.",
                 ));
             }
-        } else {
-            return add_to_path(&mut indirs, prepend, dryrun);
+            let mut indirs: Vec<PathBuf> = indir.unwrap().map(|d| PathBuf::from(d)).collect();
+            let prepend = submatches.is_present("prepend");
+            let dryrun = submatches.is_present("dryrun");
+
+            // check for the existence of directories to be added
+            let missing_dirs: Vec<&Path> = indirs
+                .iter()
+                .filter(|&d| !d.exists())
+                .map(|d| d.as_path())
+                .collect();
+            let _all_dirs_exist = missing_dirs.len() == 0;
+
+            if !_all_dirs_exist {
+                // proceed if `--force` is supplied
+                if submatches.is_present("force") {
+                    return add_to_path(&mut indirs, prepend, dryrun);
+                } else {
+                    // don't proceed, tell the user to try again
+                    return Err(Error::new(
+                        ErrorKind::NotFound,
+                        format!("Directory `{}` does not exist. If you still want to add this, re-run with `-f/--force`.", missing_dirs[0].display())
+                    ));
+                }
+            } else {
+                return add_to_path(&mut indirs, prepend, dryrun);
+            }
         }
-    } else if let Some(_o) = matches.subcommand_matches("rm") {
-        // read command line options
-        let indir = PathBuf::from(_o.value_of("dir").unwrap());
-        let dryrun = _o.is_present("dryrun");
-        return rm_from_path(indir, dryrun);
-    } else if let Some(_o) = matches.subcommand_matches("up") {
-        // read command line options
-        let indir = PathBuf::from(_o.value_of("dir").unwrap());
-        let jump = match _o.value_of("jump").unwrap().parse::<usize>() {
-            Ok(j) => j,
-            Err(_) => {
-                return Err(Error::new(
-                    ErrorKind::InvalidInput,
-                    "JUMP must be an integer.",
-                ))
-            }
-        };
-        let dryrun = _o.is_present("dryrun");
+        ("rm", Some(submatches)) => {
+            // read command line options
+            let indir = PathBuf::from(submatches.value_of("dir").unwrap());
+            let dryrun = submatches.is_present("dryrun");
+            return rm_from_path(indir, dryrun);
+        }
+        ("up", Some(submatches)) => {
+            // read command line options
+            let indir = PathBuf::from(submatches.value_of("dir").unwrap());
+            let jump = match submatches.value_of("jump").unwrap().parse::<usize>() {
+                Ok(j) => j,
+                Err(_) => {
+                    return Err(Error::new(
+                        ErrorKind::InvalidInput,
+                        "JUMP must be an integer.",
+                    ))
+                }
+            };
+            let dryrun = submatches.is_present("dryrun");
 
-        return change_priority(indir, -1 * (jump as i8), dryrun);
-    } else if let Some(_o) = matches.subcommand_matches("dn") {
-        // read command line options
-        let indir = PathBuf::from(_o.value_of("dir").unwrap());
-        let jump = match _o.value_of("jump").unwrap().parse::<usize>() {
-            Ok(j) => j,
-            Err(_) => {
-                return Err(Error::new(
-                    ErrorKind::InvalidInput,
-                    "JUMP must be an integer.",
-                ))
-            }
-        };
-        let dryrun = _o.is_present("dryrun");
+            return change_priority(indir, -1 * (jump as i8), dryrun);
+        }
+        ("dn", Some(submatches)) => {
+            // read command line options
+            let indir = PathBuf::from(submatches.value_of("dir").unwrap());
+            let jump = match submatches.value_of("jump").unwrap().parse::<usize>() {
+                Ok(j) => j,
+                Err(_) => {
+                    return Err(Error::new(
+                        ErrorKind::InvalidInput,
+                        "JUMP must be an integer.",
+                    ))
+                }
+            };
+            let dryrun = submatches.is_present("dryrun");
 
-        return change_priority(indir, jump as i8, dryrun);
-    } else if let Some(_o) = matches.subcommand_matches("clean") {
-        let dryrun = _o.is_present("dryrun");
-        match clean_path(dryrun) {
-            Ok(_) => {}
-            Err(e) => eprintln!("Could not clean PATH. '{}'", e),
-        };
-    } else {
-        // if no subcommand matches, just print out of precaution
-        let vpath = read_path();
-        for p in &vpath {
-            println!("{}", p.display());
+            return change_priority(indir, jump as i8, dryrun);
+        }
+        ("clean", Some(submatches)) => {
+            let dryrun = submatches.is_present("dryrun");
+            match clean_path(dryrun) {
+                Ok(_) => {}
+                Err(e) => eprintln!("Could not clean PATH. '{}'", e),
+            };
+        }
+        // for anything else, print the unaltered PATH out of caution
+        (_, _) => {
+            let vpath = read_path();
+            for p in &vpath {
+                println!("{}", p.display());
+            }
         }
     }
     Ok(())
