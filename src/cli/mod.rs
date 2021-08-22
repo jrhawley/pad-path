@@ -173,7 +173,7 @@ fn parse_cli() -> ArgMatches<'static> {
 pub fn execute_cli() -> Result<(), Error> {
     let matches = parse_cli();
     match matches.subcommand() {
-        ("ls", Some(submatches)) => {
+        ("ls", _) => {
             let vpath = read_path();
             for p in &vpath {
                 println!("{}", p.display());
