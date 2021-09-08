@@ -1,9 +1,14 @@
 //! Functions for reading and writing to the PATH history
 
-use std::{env, ffi::OsString, path::PathBuf};
-
 use clap::crate_name;
 use home::home_dir;
+use std::{
+    env,
+    ffi::{OsStr, OsString},
+    fs::OpenOptions,
+    io::{self, Write},
+    path::PathBuf,
+};
 
 /// Check multiple locations for a PATH history file and return the highest priority one
 pub fn get_history_filepath() -> PathBuf {
@@ -24,11 +29,7 @@ pub fn get_history_filepath() -> PathBuf {
     // get config from within $XDG_CONFIG_HOME
     cfg_path.push(crate_name!());
     cfg_path.push(".path_history");
-    match cfg_path.exists() {
-        true => cfg_path,
-        // look for a file in the current directory
-        false => PathBuf::from(".path_history"),
-    }
+    cfg_path
 }
 
 /// Parse the PATH history
@@ -39,4 +40,21 @@ fn parse_history(n: Option<u128>) -> Vec<OsString> {
     let history_filepath = get_history_filepath();
     //
     todo!()
+}
+
+/// Write the new PATH to the history file
+pub fn write_to_history(p: &OsStr) -> Result<(), io::Error> {
+    // convert into a writable string
+    let p_str = p.to_str().unwrap();
+    // get the history file
+    let history_filepath = get_history_filepath();
+    // open the file with the appropriate permissions
+    let mut history_file = OpenOptions::new()
+        // create it if it doesn't exist
+        .create(true)
+        // append to the end of the file
+        .append(true)
+        // which file path to write to
+        .open(history_filepath)?;
+    writeln!(history_file, "{}", p_str)
 }
