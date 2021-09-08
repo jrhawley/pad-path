@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.2.0
+
+- Adding revert/undo functionality
+  - This makes use of a local config file that contains all the path history
+
 ## v0.1.10
 
 - Simplified error messages when a directory doesn't exist
