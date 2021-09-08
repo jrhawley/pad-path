@@ -44,6 +44,13 @@ fn parse_cli() -> ArgMatches<'static> {
                         .short("p")
                         .long("prepend")
                         .help("Make this directory the highest priority by prepending it to PATH"),
+                )
+                .arg(
+                    Arg::with_name("history")
+                        .short("H")
+                        .long("history")
+                        .help("Add PATH to history")
+                        .takes_value(false)
                 ),
         )
         .subcommand(
@@ -70,6 +77,13 @@ fn parse_cli() -> ArgMatches<'static> {
                         .short("p")
                         .long("prepend")
                         .help("Make this directory the highest priority by prepending it to PATH"),
+                )
+                .arg(
+                    Arg::with_name("history")
+                        .short("H")
+                        .long("history")
+                        .help("Add PATH to history")
+                        .takes_value(false)
                 ),
         )
         .subcommand(
@@ -97,6 +111,13 @@ fn parse_cli() -> ArgMatches<'static> {
                         .long("dry-run")
                         .takes_value(false)
                         .help("Only show the changes to PATH, don't actually make changes to PATH"),
+                )
+                .arg(
+                    Arg::with_name("history")
+                        .short("H")
+                        .long("history")
+                        .help("Add PATH to history")
+                        .takes_value(false)
                 ),
         )
         .subcommand(
@@ -124,6 +145,13 @@ fn parse_cli() -> ArgMatches<'static> {
                         .long("dry-run")
                         .takes_value(false)
                         .help("Only show the changes to PATH, don't actually make changes to PATH"),
+                )
+                .arg(
+                    Arg::with_name("history")
+                        .short("H")
+                        .long("history")
+                        .help("Add PATH to history")
+                        .takes_value(false)
                 ),
         )
         .subcommand(
@@ -136,6 +164,13 @@ fn parse_cli() -> ArgMatches<'static> {
                         .long("dry-run")
                         .takes_value(false)
                         .help("Only show the changes to PATH, don't actually make changes to PATH"),
+                )
+                .arg(
+                    Arg::with_name("history")
+                        .short("H")
+                        .long("history")
+                        .help("Add PATH to history")
+                        .takes_value(false)
                 ),
         )
         .subcommand(
@@ -162,6 +197,13 @@ fn parse_cli() -> ArgMatches<'static> {
                         .long("list")
                         .takes_value(false)
                         .required(true),
+                )
+                .arg(
+                    Arg::with_name("history")
+                        .short("H")
+                        .long("history")
+                        .help("Add PATH to history")
+                        .takes_value(false)
                 ),
         )
         .get_matches();

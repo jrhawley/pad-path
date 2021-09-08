@@ -20,6 +20,7 @@ include = [
 
 [dependencies]
 clap = "2"
+home = "0.5"
 itertools = "0.9"
 
 [[bin]]
