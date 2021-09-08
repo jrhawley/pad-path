@@ -1,5 +1,6 @@
 //! Command line argument parsing and decision making.
 
+use crate::path::revert_path;
 use crate::path::{add_to_path, change_priority, clean_path, read::read_path, rm_from_path};
 use clap::{
     app_from_crate, crate_authors, crate_description, crate_name, crate_version, Arg, ArgMatches,
@@ -185,6 +186,7 @@ fn parse_cli() -> ArgMatches<'static> {
                 .arg(
                     Arg::with_name("revision")
                         .help("PATH revision number to revert to. If not specified, reverts to the most recent version, by default.")
+                        .value_name("REVISION")
                         .short("r")
                         .long("revision")
                         .takes_value(true)
@@ -197,6 +199,13 @@ fn parse_cli() -> ArgMatches<'static> {
                         .long("list")
                         .takes_value(false)
                         .required(true),
+                )
+                .arg(
+                    Arg::with_name("dry_run")
+                        .short("n")
+                        .long("dry-run")
+                        .takes_value(false)
+                        .help("Only show the changes to PATH, don't actually make changes to PATH"),
                 )
                 .arg(
                     Arg::with_name("history")
@@ -274,7 +283,7 @@ pub fn execute_cli() -> Result<(), Error> {
                 Err(_) => {
                     return Err(Error::new(
                         ErrorKind::InvalidInput,
-                        "JUMP must be an integer.",
+                        "JUMP must be a whole number.",
                     ))
                 }
             };
@@ -291,7 +300,7 @@ pub fn execute_cli() -> Result<(), Error> {
                 Err(_) => {
                     return Err(Error::new(
                         ErrorKind::InvalidInput,
-                        "JUMP must be an integer.",
+                        "JUMP must be a whole number.",
                     ))
                 }
             };
@@ -307,6 +316,30 @@ pub fn execute_cli() -> Result<(), Error> {
             match clean_path(dry_run, add_to_history) {
                 Ok(_) => {}
                 Err(e) => eprintln!("Could not clean PATH. '{}'", e),
+            };
+        }
+        ("revert", Some(submatches)) => {
+            let revision = match submatches
+                .value_of("revision")
+                .unwrap_or("1")
+                .parse::<u128>()
+            {
+                Ok(j) => j,
+                Err(_) => {
+                    return Err(Error::new(
+                        ErrorKind::InvalidInput,
+                        "REVISION must be a whole number.",
+                    ))
+                }
+            };
+            let list = submatches.is_present("list");
+            let dry_run = submatches.is_present("dry_run");
+            let add_to_history = submatches.is_present("history");
+
+            // revert to this version of the PATH
+            match revert_path(revision, list, dry_run, add_to_history) {
+                Ok(_) => {}
+                Err(e) => eprintln!("Could not revert PATH. '{}'", e),
             };
         }
         // for anything else, print the unaltered PATH out of caution

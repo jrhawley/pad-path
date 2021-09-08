@@ -6,7 +6,7 @@ use std::{
     env,
     ffi::{OsStr, OsString},
     fs::OpenOptions,
-    io::{self, Write},
+    io::{self, Error, Write},
     path::PathBuf,
 };
 
@@ -35,10 +35,21 @@ pub fn get_history_filepath() -> PathBuf {
 /// Parse the PATH history
 /// For memory constraints, parse the last n lines.
 /// If not limit is specified, load the file carefully.
-fn parse_history(n: Option<u128>) -> Vec<OsString> {
+pub fn get_nth_last_revision(n: u128) -> Result<OsString, Error> {
     // get the history file
     let history_filepath = get_history_filepath();
-    //
+
+    // error out if the path history does not exist
+    if !history_filepath.exists() {
+        return Err(Error::new(
+            io::ErrorKind::NotFound,
+            "PATH history file not found. Nothing to revert to.",
+        ));
+    }
+
+    // error out if the revision is too far back (not enough history in the path history file)
+
+    // read back `n` lines to get the nth last revision
     todo!()
 }
 

@@ -19,6 +19,7 @@ use std::os::unix::ffi::OsStrExt;
 #[cfg(target_os = "windows")]
 use std::os::windows::ffi::OsStrExt;
 
+use self::history::get_nth_last_revision;
 use self::{read::read_path, write::replace_path};
 
 /// Add the given directory to the PATH environment variable
@@ -222,4 +223,22 @@ fn has_trailing_slash<P: AsRef<Path>>(p: P) -> bool {
 #[cfg(unix)]
 fn has_trailing_slash<P: AsRef<Path>>(p: P) -> bool {
     p.as_ref().as_os_str().as_bytes().last() == Some(&b'/')
+}
+
+/// Revert to an earlier PATH
+/// This makes use of the `.path_history` file
+pub fn revert_path(
+    revision: u128,
+    list: bool,
+    dry_run: bool,
+    add_to_history: bool,
+) -> Result<(), Error> {
+    // read the path, clean each entry, and convert into Vec<PathBuf>
+    let mut current_path: Vec<PathBuf> = read_path();
+
+    // look up an old PATH from the path history
+    let newpath = get_nth_last_revision(revision)?;
+
+    //
+    replace_path(newpath, dry_run, add_to_history)
 }
