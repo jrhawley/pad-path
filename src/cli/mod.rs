@@ -191,6 +191,7 @@ fn parse_cli() -> ArgMatches<'static> {
                         .long("revision")
                         .takes_value(true)
                         .required(false)
+                        .default_value("1")
                 )
                 .arg(
                     Arg::with_name("list")
