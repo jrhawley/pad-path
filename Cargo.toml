@@ -22,6 +22,7 @@ include = [
 clap = "2"
 home = "0.5"
 itertools = "0.9"
+rev_lines = "0.2"
 
 [[bin]]
 name = "pad"

@@ -2,11 +2,12 @@
 
 use clap::crate_name;
 use home::home_dir;
+use rev_lines::RevLines;
 use std::{
     env,
     ffi::{OsStr, OsString},
     fs::OpenOptions,
-    io::{self, Error, Write},
+    io::{self, BufReader, Error, Write},
     path::PathBuf,
 };
 
@@ -46,11 +47,21 @@ pub fn get_nth_last_revision(n: u128) -> Result<OsString, Error> {
             "PATH history file not found. Nothing to revert to.",
         ));
     }
+    let history_file = OpenOptions::new().read(true).open(history_filepath)?;
+
+    // iterate through the lines in reverse order
+    let rev_lines = RevLines::new(BufReader::new(history_file)).unwrap();
 
     // error out if the revision is too far back (not enough history in the path history file)
+    let revision_path = match rev_lines.into_iter().nth((n - 1) as usize) {
+        Some(s) => OsString::from(s),
+        None => return Err(Error::new(
+            io::ErrorKind::InvalidInput,
+            format!("PATH history does not contain revision {}. Please specify a smaller revision number.", &n),
+        ))
+    };
 
-    // read back `n` lines to get the nth last revision
-    todo!()
+    Ok(revision_path)
 }
 
 /// Write the new PATH to the history file

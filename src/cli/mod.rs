@@ -199,7 +199,7 @@ fn parse_cli() -> ArgMatches<'static> {
                         .short("l")
                         .long("list")
                         .takes_value(false)
-                        .required(true),
+                        .required(false),
                 )
                 .arg(
                     Arg::with_name("dry_run")
@@ -329,10 +329,16 @@ pub fn execute_cli() -> Result<(), Error> {
                 Err(_) => {
                     return Err(Error::new(
                         ErrorKind::InvalidInput,
-                        "REVISION must be a whole number.",
+                        "REVISION must be a whole number >= 1.",
                     ))
                 }
             };
+            if revision < 1 {
+                return Err(Error::new(
+                    ErrorKind::InvalidInput,
+                    "REVISION must be a whole number >= 1.",
+                ));
+            }
             let list = submatches.is_present("list");
             let dry_run = submatches.is_present("dry_run");
             let add_to_history = submatches.is_present("history");
