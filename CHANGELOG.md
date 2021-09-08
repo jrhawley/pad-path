@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.1.10
+
+- Simplified error messages when a directory doesn't exist
+
+## v0.1.9
+
+- Bugfix: `pad add -p` no longer erases `PATH`
+
+## v0.1.8
+
+- Safe failure mode by always printing the current `PATH` if an error occurs
+
+## v0.1.7
+
+- Automatically clean `PATH`
+- Allow for adding multiple directories in a single command
+
+## v0.1.6
+
+- Consistent environment variable behaviour on Windows machines as other operating systems
+
+## v0.1.5
+
+- Deprecating `undo` subcommand due to insecure and lack of persistence trying to directly edit environment variables
+
 ## v0.1.4
 
 - Bugfixes for *nix operating systems
