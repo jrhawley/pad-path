@@ -227,18 +227,10 @@ fn has_trailing_slash<P: AsRef<Path>>(p: P) -> bool {
 
 /// Revert to an earlier PATH
 /// This makes use of the `.path_history` file
-pub fn revert_path(
-    revision: u128,
-    list: bool,
-    dry_run: bool,
-    add_to_history: bool,
-) -> Result<(), Error> {
-    // read the path, clean each entry, and convert into Vec<PathBuf>
-    let mut current_path: Vec<PathBuf> = read_path();
-
+pub fn revert_path(revision: u128, dry_run: bool, add_to_history: bool) -> Result<(), Error> {
     // look up an old PATH from the path history
     let newpath = get_nth_last_revision(revision)?;
 
-    //
+    // replace the current path with the revised one
     replace_path(newpath, dry_run, add_to_history)
 }

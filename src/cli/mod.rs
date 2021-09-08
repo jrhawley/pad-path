@@ -194,14 +194,6 @@ fn parse_cli() -> ArgMatches<'static> {
                         .default_value("1")
                 )
                 .arg(
-                    Arg::with_name("list")
-                        .help("List all previous recorded revisions of PATH")
-                        .short("l")
-                        .long("list")
-                        .takes_value(false)
-                        .required(false),
-                )
-                .arg(
                     Arg::with_name("dry_run")
                         .short("n")
                         .long("dry-run")
@@ -339,12 +331,11 @@ pub fn execute_cli() -> Result<(), Error> {
                     "REVISION must be a whole number >= 1.",
                 ));
             }
-            let list = submatches.is_present("list");
             let dry_run = submatches.is_present("dry_run");
             let add_to_history = submatches.is_present("history");
 
             // revert to this version of the PATH
-            match revert_path(revision, list, dry_run, add_to_history) {
+            match revert_path(revision, dry_run, add_to_history) {
                 Ok(_) => {}
                 Err(e) => eprintln!("Could not revert PATH. '{}'", e),
             };
