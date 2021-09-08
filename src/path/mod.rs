@@ -22,7 +22,7 @@ use std::os::windows::ffi::OsStrExt;
 use self::{read::read_path, write::replace_path};
 
 /// Add the given directory to the PATH environment variable
-pub fn add_to_path(dirs: &mut Vec<PathBuf>, prepend: bool, dryrun: bool) -> Result<(), Error> {
+pub fn add_to_path(dirs: &mut Vec<PathBuf>, prepend: bool, dry_run: bool) -> Result<(), Error> {
     // read the path, clean each entry, and convert into Vec<PathBuf>
     let mut current_path: Vec<PathBuf> = read_path();
     let mut cleaned_dirs: Vec<PathBuf> = dirs.iter().map(|d| clean_dir_name(d)).collect();
@@ -53,11 +53,11 @@ pub fn add_to_path(dirs: &mut Vec<PathBuf>, prepend: bool, dryrun: bool) -> Resu
             join_paths(current_path).unwrap()
         }
     };
-    replace_path(newpath, dryrun)
+    replace_path(newpath, dry_run)
 }
 
 /// Remove the given directory to the PATH environment variable
-pub fn rm_from_path(dir: PathBuf, dryrun: bool) -> Result<(), Error> {
+pub fn rm_from_path(dir: PathBuf, dry_run: bool) -> Result<(), Error> {
     let current_path = read_path();
     let idx = current_path.iter().position(|x| *x == dir);
     // if the directory is found within PATH
@@ -65,7 +65,7 @@ pub fn rm_from_path(dir: PathBuf, dryrun: bool) -> Result<(), Error> {
         let mut vpath = current_path.clone();
         vpath.remove(i);
         let newpath = join_paths(vpath).unwrap();
-        replace_path(newpath, dryrun)
+        replace_path(newpath, dry_run)
     } else {
         Err(Error::new(
             ErrorKind::NotFound,
@@ -78,7 +78,7 @@ pub fn rm_from_path(dir: PathBuf, dryrun: bool) -> Result<(), Error> {
 }
 
 /// Change the priority of a directory by moving it earlier or later in PATH
-pub fn change_priority(dir: PathBuf, jump: i8, dryrun: bool) -> Result<(), Error> {
+pub fn change_priority(dir: PathBuf, jump: i8, dry_run: bool) -> Result<(), Error> {
     let current_path = read_path();
     let idx = current_path.iter().position(|x| *x == dir);
     // if the directory is found within PATH
@@ -142,7 +142,7 @@ pub fn change_priority(dir: PathBuf, jump: i8, dryrun: bool) -> Result<(), Error
             );
         }
         let newpath = join_paths(vpath).unwrap();
-        replace_path(newpath, dryrun)
+        replace_path(newpath, dry_run)
     } else {
         Err(Error::new(
             ErrorKind::NotFound,
@@ -157,7 +157,7 @@ pub fn change_priority(dir: PathBuf, jump: i8, dryrun: bool) -> Result<(), Error
 /// Clean up PATH by removing duplicated directories.
 /// No behaviour changes occur after cleaning the path, since we keep the first
 /// occurrence in its position and remove all latter occurrences.
-pub fn clean_path(dryrun: bool) -> Result<(), Error> {
+pub fn clean_path(dry_run: bool) -> Result<(), Error> {
     let current_path = read_path();
     // only keep existing and unique directories
     let vpath: Vec<PathBuf> = current_path
@@ -166,7 +166,7 @@ pub fn clean_path(dryrun: bool) -> Result<(), Error> {
         .unique()
         .collect();
     let newpath = join_paths(vpath).unwrap();
-    replace_path(newpath, dryrun)
+    replace_path(newpath, dry_run)
 }
 
 /// Clean directory names by removing trailing folder separator characters and
