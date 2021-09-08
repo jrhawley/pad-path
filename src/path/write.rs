@@ -3,12 +3,12 @@
 use std::ffi::OsString;
 use std::io::Error;
 
-use crate::path::read::read_raw_path;
+use crate::path::{history::write_to_history, read::read_raw_path};
 
 /// Replace the PATH environment variable
-#[cfg(target_os = "windows")]
-pub fn replace_path(newpath: OsString, dry_run: bool) -> Result<(), Error> {
-    let current_path = String::from(read_raw_path().unwrap().to_str().unwrap());
+pub fn replace_path(newpath: OsString, dry_run: bool, add_to_history: bool) -> Result<(), Error> {
+    let current_raw_path = read_raw_path().unwrap();
+    let current_path = String::from(current_raw_path.to_str().unwrap());
     let _new_path = String::from(newpath.to_str().unwrap());
     if dry_run {
         eprintln!("PATH before modification:\n\t{}", &current_path);
@@ -16,20 +16,9 @@ pub fn replace_path(newpath: OsString, dry_run: bool) -> Result<(), Error> {
         // skip the remainder of the function
         return Ok(());
     }
-    println!("{}", &_new_path);
-    Ok(())
-}
-
-/// Replace the PATH environment variable
-#[cfg(not(target_os = "windows"))]
-pub fn replace_path(newpath: OsString, dry_run: bool) -> Result<(), Error> {
-    let current_path = String::from(read_raw_path().unwrap().to_str().unwrap());
-    let _new_path = String::from(newpath.to_str().unwrap());
-    if dry_run {
-        eprintln!("PATH before modification:\n\t{}", &current_path);
-        eprintln!("PATH after modification:\n\t{}", &_new_path);
-        // skip the remainder of the function
-        return Ok(());
+    // if specified, write the old PATH into the history
+    if add_to_history {
+        write_to_history(&current_raw_path)?;
     }
     println!("{}", &_new_path);
     Ok(())

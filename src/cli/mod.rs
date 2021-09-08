@@ -233,6 +233,7 @@ pub fn execute_cli() -> Result<(), Error> {
             let mut indirs: Vec<PathBuf> = indir.unwrap().map(|d| PathBuf::from(d)).collect();
             let prepend = submatches.is_present("prepend");
             let dry_run = submatches.is_present("dry_run");
+            let add_to_history = submatches.is_present("history");
 
             // check for the existence of directories to be added
             let missing_dirs: Vec<&Path> = indirs
@@ -245,7 +246,7 @@ pub fn execute_cli() -> Result<(), Error> {
             if !_all_dirs_exist {
                 // proceed if `--force` is supplied
                 if submatches.is_present("force") {
-                    return add_to_path(&mut indirs, prepend, dry_run);
+                    return add_to_path(&mut indirs, prepend, dry_run, add_to_history);
                 } else {
                     // don't proceed, tell the user to try again
                     return Err(Error::new(
@@ -254,14 +255,16 @@ pub fn execute_cli() -> Result<(), Error> {
                     ));
                 }
             } else {
-                return add_to_path(&mut indirs, prepend, dry_run);
+                return add_to_path(&mut indirs, prepend, dry_run, add_to_history);
             }
         }
         ("rm", Some(submatches)) => {
             // read command line options
             let indir = PathBuf::from(submatches.value_of("dir").unwrap());
             let dry_run = submatches.is_present("dry_run");
-            return rm_from_path(indir, dry_run);
+            let add_to_history = submatches.is_present("history");
+
+            return rm_from_path(indir, dry_run, add_to_history);
         }
         ("up", Some(submatches)) => {
             // read command line options
@@ -276,8 +279,9 @@ pub fn execute_cli() -> Result<(), Error> {
                 }
             };
             let dry_run = submatches.is_present("dry_run");
+            let add_to_history = submatches.is_present("history");
 
-            return change_priority(indir, -1 * (jump as i8), dry_run);
+            return change_priority(indir, -1 * (jump as i8), dry_run, add_to_history);
         }
         ("dn", Some(submatches)) => {
             // read command line options
@@ -292,12 +296,15 @@ pub fn execute_cli() -> Result<(), Error> {
                 }
             };
             let dry_run = submatches.is_present("dry_run");
+            let add_to_history = submatches.is_present("history");
 
-            return change_priority(indir, jump as i8, dry_run);
+            return change_priority(indir, jump as i8, dry_run, add_to_history);
         }
         ("clean", Some(submatches)) => {
             let dry_run = submatches.is_present("dry_run");
-            match clean_path(dry_run) {
+            let add_to_history = submatches.is_present("history");
+
+            match clean_path(dry_run, add_to_history) {
                 Ok(_) => {}
                 Err(e) => eprintln!("Could not clean PATH. '{}'", e),
             };
