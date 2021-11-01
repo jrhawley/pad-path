@@ -12,8 +12,8 @@ pub mod history;
 pub mod read;
 pub mod write;
 
-#[cfg(target_os = "macos")]
-use std::os::macos::ffi::OsStrExt;
+// #[cfg(target_os = "macos")]
+// use std::os::macos::ffi::OsStrExt;
 #[cfg(target_os = "linux")]
 use std::os::unix::ffi::OsStrExt;
 #[cfg(target_os = "windows")]
@@ -213,16 +213,21 @@ fn make_abs_path<P: AsRef<Path>>(p: P) -> PathBuf {
 }
 
 /// Check if a directory Path contains the trailing separator
-#[cfg(windows)]
+#[cfg(target_os = "windows")]
 fn has_trailing_slash<P: AsRef<Path>>(p: P) -> bool {
     let last = p.as_ref().as_os_str().encode_wide().last();
     // Windows can have '/' or '\' as its trailing character
     last == Some(b'\\' as u16) || last == Some(b'/' as u16)
 }
 /// Check if a directory Path contains the trailing separator
-#[cfg(unix)]
+#[cfg(target_os = "unix")]
 fn has_trailing_slash<P: AsRef<Path>>(p: P) -> bool {
-    p.as_ref().as_os_str().as_bytes().last() == Some(&b'/')
+    p.as_ref().to_string_lossy().as_bytes().last() == Some(&b'/')
+}
+/// Check if a directory Path contains the trailing separator
+#[cfg(target_os = "macos")]
+fn has_trailing_slash<P: AsRef<Path>>(p: P) -> bool {
+    p.as_ref().to_string_lossy().as_bytes().last() == Some(&b'/')
 }
 
 /// Revert to an earlier PATH
