@@ -2,14 +2,14 @@
 name = "pad-path"
 version = "0.2.1"
 authors = ["James Hawley <developer@jrhawley.ca>"]
-edition = "2018"
+edition = "2021"
 description = "Intuitively modify your `$PATH`"
 license = "MIT"
 repository = "https://github.com/jrhawley/pad-path/"
 homepage = "https://github.com/jrhawley/pad-path/"
 readme = "README.md"
 categories = ["command-line-utilities"]
-keywords = ["cli"]
+keywords = ["cli", "path"]
 include = [
 	"src/**/*",
 	"Cargo.toml",
