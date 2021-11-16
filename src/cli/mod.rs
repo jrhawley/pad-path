@@ -12,7 +12,10 @@ use std::{
     path::Path,
 };
 
-/// Parse command line arguments and return the parsed ArgMatches object
+/// Parse command line arguments.
+///
+/// This does not execute what is given by the command line, it simply parses.
+/// The execution logic is performed by [`execute_cli`](fn.execute_cli.html).
 fn parse_cli() -> ArgMatches<'static> {
     let matches = app_from_crate!()
         .subcommand(
@@ -38,19 +41,19 @@ fn parse_cli() -> ArgMatches<'static> {
                         .short("n")
                         .long("dry-run")
                         .takes_value(false)
-                        .help("Only show the changes to PATH, don't actually make changes to PATH"),
+                        .help("Only show the changes to `$PATH`, don't actually make changes to `$PATH`"),
                 )
                 .arg(
                     Arg::with_name("prepend")
                         .short("p")
                         .long("prepend")
-                        .help("Make this directory the highest priority by prepending it to PATH"),
+                        .help("Make this directory the highest priority by prepending it to `$PATH`"),
                 )
                 .arg(
                     Arg::with_name("history")
                         .short("H")
                         .long("history")
-                        .help("Add PATH to history")
+                        .help("Add `$PATH` to history")
                         .takes_value(false)
                 ),
         )
@@ -71,19 +74,19 @@ fn parse_cli() -> ArgMatches<'static> {
                         .short("n")
                         .long("dry-run")
                         .takes_value(false)
-                        .help("Only show the changes to PATH, don't actually make changes to PATH"),
+                        .help("Only show the changes to `$PATH`, don't actually make changes to `$PATH`"),
                 )
                 .arg(
                     Arg::with_name("prepend")
                         .short("p")
                         .long("prepend")
-                        .help("Make this directory the highest priority by prepending it to PATH"),
+                        .help("Make this directory the highest priority by prepending it to `$PATH`"),
                 )
                 .arg(
                     Arg::with_name("history")
                         .short("H")
                         .long("history")
-                        .help("Add PATH to history")
+                        .help("Add `$PATH` to history")
                         .takes_value(false)
                 ),
         )
@@ -101,7 +104,7 @@ fn parse_cli() -> ArgMatches<'static> {
                 .arg(
                     Arg::with_name("jump")
                         .value_name("JUMP")
-                        .help("Move this directory up `JUMP` spots in the PATH.")
+                        .help("Move this directory up `JUMP` spots in the `$PATH`.")
                         .required(true)
                         .takes_value(true)
                         .default_value("1"),
@@ -111,13 +114,13 @@ fn parse_cli() -> ArgMatches<'static> {
                         .short("n")
                         .long("dry-run")
                         .takes_value(false)
-                        .help("Only show the changes to PATH, don't actually make changes to PATH"),
+                        .help("Only show the changes to `$PATH`, don't actually make changes to `$PATH`"),
                 )
                 .arg(
                     Arg::with_name("history")
                         .short("H")
                         .long("history")
-                        .help("Add PATH to history")
+                        .help("Add `$PATH` to history")
                         .takes_value(false)
                 ),
         )
@@ -135,7 +138,7 @@ fn parse_cli() -> ArgMatches<'static> {
                 .arg(
                     Arg::with_name("jump")
                         .value_name("JUMP")
-                        .help("Move this directory down `JUMP` spots in the PATH.")
+                        .help("Move this directory down `JUMP` spots in the `$PATH`.")
                         .required(true)
                         .takes_value(true)
                         .default_value("1"),
@@ -145,13 +148,13 @@ fn parse_cli() -> ArgMatches<'static> {
                         .short("n")
                         .long("dry-run")
                         .takes_value(false)
-                        .help("Only show the changes to PATH, don't actually make changes to PATH"),
+                        .help("Only show the changes to `$PATH`, don't actually make changes to `$PATH`"),
                 )
                 .arg(
                     Arg::with_name("history")
                         .short("H")
                         .long("history")
-                        .help("Add PATH to history")
+                        .help("Add `$PATH` to history")
                         .takes_value(false)
                 ),
         )
@@ -164,28 +167,28 @@ fn parse_cli() -> ArgMatches<'static> {
                         .short("n")
                         .long("dry-run")
                         .takes_value(false)
-                        .help("Only show the changes to PATH, don't actually make changes to PATH"),
+                        .help("Only show the changes to `$PATH`, don't actually make changes to `$PATH`"),
                 )
                 .arg(
                     Arg::with_name("history")
                         .short("H")
                         .long("history")
-                        .help("Add PATH to history")
+                        .help("Add `$PATH` to history")
                         .takes_value(false)
                 ),
         )
         .subcommand(
             SubCommand::with_name("ls")
-                .about("List the directories in PATH")
+                .about("List the directories in `$PATH`")
                 .visible_alias("echo"),
         )
         .subcommand(
             SubCommand::with_name("revert")
-                .about("Revert to a previous version of PATH")
+                .about("Revert to a previous version of `$PATH`")
                 .visible_alias("undo")
                 .arg(
                     Arg::with_name("revision")
-                        .help("PATH revision number to revert to. If not specified, reverts to the most recent version, by default.")
+                        .help("`$PATH` revision number to revert to. If not specified, reverts to the most recent version, by default.")
                         .value_name("REVISION")
                         .short("r")
                         .long("revision")
@@ -198,13 +201,13 @@ fn parse_cli() -> ArgMatches<'static> {
                         .short("n")
                         .long("dry-run")
                         .takes_value(false)
-                        .help("Only show the changes to PATH, don't actually make changes to PATH"),
+                        .help("Only show the changes to `$PATH`, don't actually make changes to `$PATH`"),
                 )
                 .arg(
                     Arg::with_name("history")
                         .short("H")
                         .long("history")
-                        .help("Add PATH to history")
+                        .help("Add `$PATH` to history")
                         .takes_value(false)
                 ),
         )
@@ -213,7 +216,8 @@ fn parse_cli() -> ArgMatches<'static> {
 }
 
 /// Execute the command issued from the command line.
-/// Parsing of the arguments is explicitly done by `parse_cli`.
+///
+/// Parsing of the arguments is explicitly handled by [`parse_cli`](fn.parse_cli.html).
 pub fn execute_cli() -> Result<(), Error> {
     let matches = parse_cli();
     match matches.subcommand() {
@@ -308,7 +312,7 @@ pub fn execute_cli() -> Result<(), Error> {
 
             match clean_path(dry_run, add_to_history) {
                 Ok(_) => {}
-                Err(e) => eprintln!("Could not clean PATH. '{}'", e),
+                Err(e) => eprintln!("Could not clean `$PATH`. '{}'", e),
             };
         }
         ("revert", Some(submatches)) => {
@@ -337,10 +341,10 @@ pub fn execute_cli() -> Result<(), Error> {
             // revert to this version of the PATH
             match revert_path(revision, dry_run, add_to_history) {
                 Ok(_) => {}
-                Err(e) => eprintln!("Could not revert PATH. '{}'", e),
+                Err(e) => eprintln!("Could not revert `$PATH`. '{}'", e),
             };
         }
-        // for anything else, print the unaltered PATH out of caution
+        // for anything else, print the unaltered `$PATH` out of caution
         (_, _) => {
             let vpath = read_path();
             for p in &vpath {

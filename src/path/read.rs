@@ -1,4 +1,4 @@
-//! Functions for reading the current PATH
+//! Read the current `$PATH`.
 
 use std::{
     env::{split_paths, var_os},
@@ -8,12 +8,12 @@ use std::{
 
 use crate::path::clean_dir_name;
 
-/// Get the value for the PATH environment variable
+/// Get the value for the `$PATH` environment variable.
 pub fn read_raw_path() -> Option<OsString> {
     var_os("PATH")
 }
 
-/// Get the value for the PATH environment variable, split across a vector
+/// Get the value for the `$PATH` environment variable, split across a vector.
 pub fn read_path() -> Vec<PathBuf> {
     match read_raw_path() {
         Some(path_str) => split_paths(&path_str)

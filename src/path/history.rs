@@ -1,4 +1,4 @@
-//! Functions for reading and writing to the PATH history
+//! Read and write to the `$PATH` history.
 
 use clap::crate_name;
 use home::home_dir;
@@ -7,11 +7,12 @@ use std::{
     env,
     ffi::{OsStr, OsString},
     fs::OpenOptions,
-    io::{self, BufReader, Error, Write},
+    io::{self, BufReader, Write},
     path::PathBuf,
 };
 
-/// Check multiple locations for a PATH history file and return the highest priority one
+/// Check multiple locations for a `$PATH` history file and return the highest
+/// priority one.
 pub fn get_history_filepath() -> PathBuf {
     // check if $XDG_CONFIG_HOME is set
     let mut cfg_path = match env::var("XDG_CONFIG_HOME") {
@@ -33,18 +34,19 @@ pub fn get_history_filepath() -> PathBuf {
     cfg_path
 }
 
-/// Parse the PATH history
+/// Parse the `$PATH` history.
+///
 /// For memory constraints, parse the last n lines.
-/// If not limit is specified, load the file carefully.
-pub fn get_nth_last_revision(n: u128) -> Result<OsString, Error> {
+/// If no limit is specified, load the file carefully.
+pub fn get_nth_last_revision(n: u128) -> io::Result<OsString> {
     // get the history file
     let history_filepath = get_history_filepath();
 
     // error out if the path history does not exist
     if !history_filepath.exists() {
-        return Err(Error::new(
+        return Err(io::Error::new(
             io::ErrorKind::NotFound,
-            "PATH history file not found. Nothing to revert to.",
+            "`$PATH` history file not found. Nothing to revert to.",
         ));
     }
     let history_file = OpenOptions::new().read(true).open(history_filepath)?;
@@ -55,17 +57,17 @@ pub fn get_nth_last_revision(n: u128) -> Result<OsString, Error> {
     // error out if the revision is too far back (not enough history in the path history file)
     let revision_path = match rev_lines.into_iter().nth((n - 1) as usize) {
         Some(s) => OsString::from(s),
-        None => return Err(Error::new(
+        None => return Err(io::Error::new(
             io::ErrorKind::InvalidInput,
-            format!("PATH history does not contain revision {}. Please specify a smaller revision number.", &n),
+            format!("`$PATH` history does not contain revision {}. Please specify a smaller revision number.", &n),
         ))
     };
 
     Ok(revision_path)
 }
 
-/// Write the new PATH to the history file
-pub fn write_to_history(p: &OsStr) -> Result<(), io::Error> {
+/// Append the new `$PATH` to the history file.
+pub fn write_to_history(p: &OsStr) -> io::Result<()> {
     // convert into a writable string
     let p_str = p.to_str().unwrap();
     // get the history file

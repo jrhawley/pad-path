@@ -11,15 +11,15 @@
 
 ## v0.1.9
 
-- Bugfix: `pad add -p` no longer erases `PATH`
+- Bugfix: `pad add -p` no longer erases `$PATH`
 
 ## v0.1.8
 
-- Safe failure mode by always printing the current `PATH` if an error occurs
+- Safe failure mode by always printing the current `$PATH` if an error occurs
 
 ## v0.1.7
 
-- Automatically clean `PATH`
+- Automatically clean `$PATH`
 - Allow for adding multiple directories in a single command
 
 ## v0.1.6
@@ -37,7 +37,7 @@
 
 ## v0.1.3
 
-- Additionally remove non-existing directories from `PATH` with `clean` subcommand
+- Additionally remove non-existing directories from `$PATH` with `clean` subcommand
 - Default to +/-1 positions for `up` and `dn` subcommands
 
 ## v0.1.2
@@ -47,9 +47,9 @@
 
 ## v0.1.1
 
-`clean` subcommand to remove duplicate directories from `PATH`.
+`clean` subcommand to remove duplicate directories from `$PATH`.
 
 ## v0.1.0
 
 Initial release.
-Can add, remove, list, and change priority of directories in `PATH`.
+Can add, remove, list, and change priority of directories in `$PATH`.

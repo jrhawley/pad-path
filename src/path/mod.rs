@@ -1,4 +1,4 @@
-//! Functions for reading, writing, and processing the current PATH
+//! Read, write, and process the current `$PATH`.
 
 use itertools::Itertools;
 use std::cmp::min;
@@ -22,7 +22,7 @@ use std::os::windows::ffi::OsStrExt;
 use self::history::get_nth_last_revision;
 use self::{read::read_path, write::replace_path};
 
-/// Add the given directory to the PATH environment variable
+/// Add the given directory to the `$PATH` environment variable
 pub fn add_to_path(
     dirs: &mut Vec<PathBuf>,
     prepend: bool,
@@ -45,7 +45,7 @@ pub fn add_to_path(
         return Err(
             Error::new(
                 ErrorKind::AlreadyExists,
-                format!("Directory `{}` already exists in PATH. Use `pad up/dn` to change priority of this directory. No changes made.", _intersecting_dirs[0].display())
+                format!("Directory `{}` already exists in `$PATH`. Use `pad up/dn` to change priority of this directory. No changes made.", _intersecting_dirs[0].display())
             )
         );
     }
@@ -62,7 +62,7 @@ pub fn add_to_path(
     replace_path(newpath, dry_run, add_to_history)
 }
 
-/// Remove the given directory to the PATH environment variable
+/// Remove the given directory to the `$PATH` environment variable
 pub fn rm_from_path(dir: PathBuf, dry_run: bool, add_to_history: bool) -> Result<(), Error> {
     let current_path = read_path();
     let idx = current_path.iter().position(|x| *x == dir);
@@ -76,7 +76,7 @@ pub fn rm_from_path(dir: PathBuf, dry_run: bool, add_to_history: bool) -> Result
         Err(Error::new(
             ErrorKind::NotFound,
             format!(
-                "Directory `{}` not found in PATH. No changes made.",
+                "Directory `{}` not found in `$PATH`. No changes made.",
                 dir.display()
             ),
         ))
@@ -158,14 +158,14 @@ pub fn change_priority(
         Err(Error::new(
             ErrorKind::NotFound,
             format!(
-                "Directory `{}` not found in PATH. No changes made.",
+                "Directory `{}` not found in `$PATH`. No changes made.",
                 dir.display()
             ),
         ))
     }
 }
 
-/// Clean up PATH by removing duplicated directories.
+/// Clean up `$PATH` by removing duplicated directories.
 /// No behaviour changes occur after cleaning the path, since we keep the first
 /// occurrence in its position and remove all latter occurrences.
 pub fn clean_path(dry_run: bool, add_to_history: bool) -> Result<(), Error> {
@@ -233,7 +233,7 @@ fn has_trailing_slash<P: AsRef<Path>>(p: P) -> bool {
 /// Revert to an earlier PATH
 /// This makes use of the `.path_history` file
 pub fn revert_path(revision: u128, dry_run: bool, add_to_history: bool) -> Result<(), Error> {
-    // look up an old PATH from the path history
+    // look up an old `$PATH` from the path history
     let newpath = get_nth_last_revision(revision)?;
 
     // replace the current path with the revised one
