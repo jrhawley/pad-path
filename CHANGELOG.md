@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.2.2] - 2021-11-19
+
+### Added
+
+- Quiet `-q` CLI argument to suppress errors or warnings.
+
+### Changed
+
+- Switched from CLI parsing with `clap` to `structopt`.
+  - Everything should stil work normally, but there may be errors that I haven't tested for, yet.
+
 ## [0.2.1] - 2021-11-16
 
 ### Added
