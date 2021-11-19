@@ -8,9 +8,10 @@ use crate::path::{
     add::{add_to_path, AddOpt},
     clean::{clean_path, CleanOpt},
     priority::{decrease_priority, increase_priority, MvOpt},
+    read::read_path,
     remove::{rm_from_path, RmOpt},
+    revert::{revert_path, RevertOpt},
 };
-use crate::path::{read::read_path, revert_path};
 
 /// Configuration for the entire application.
 ///
@@ -55,31 +56,6 @@ enum SubCmd {
     )]
     Ls,
     Revert(RevertOpt),
-}
-
-#[derive(Debug, StructOpt)]
-#[structopt(
-    about = "Revert to a previous version of `$PATH`",
-    author = crate_authors!(),
-    visible_alias = "echo",
-    settings = &[AppSettings::ColoredHelp, AppSettings::ColorAuto]
-)]
-struct RevertOpt {
-    /// `$PATH` revision number to revert to. If not specified, reverts to the most recent version.
-    #[structopt(default_value = "1")]
-    revision: usize,
-
-    /// Don't print warnings when modifying `$PATH`.
-    #[structopt(short, long)]
-    quiet: bool,
-
-    /// Add current `$PATH` to the history
-    #[structopt(short = "H", long)]
-    history: bool,
-
-    /// Don't do anything, just preview what this command would do
-    #[structopt(short = "n", long = "dry-run")]
-    dry_run: bool,
 }
 
 /// Execute the command issued from the command line.
