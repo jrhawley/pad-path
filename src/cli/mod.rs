@@ -95,35 +95,13 @@ pub fn execute_cli() -> io::Result<()> {
             dn_opts.validate()?;
             decrease_priority(&dn_opts)?;
         }
-        _ => {} // ("revert", Some(submatches)) => {
-                //     let revision = match submatches
-                //         .value_of("revision")
-                //         .unwrap_or("1")
-                //         .parse::<u128>()
-                //     {
-                //         Ok(j) => j,
-                //         Err(_) => {
-                //             return Err(Error::new(
-                //                 ErrorKind::InvalidInput,
-                //                 "REVISION must be a whole number >= 1.",
-                //             ))
-                //         }
-                //     };
-                //     if revision < 1 {
-                //         return Err(Error::new(
-                //             ErrorKind::InvalidInput,
-                //             "REVISION must be a whole number >= 1.",
-                //         ));
-                //     }
-                //     let dry_run = submatches.is_present("dry_run");
-                //     let add_to_history = submatches.is_present("history");
-
-                //     // revert to this version of the PATH
-                //     match revert_path(revision, dry_run, add_to_history) {
-                //         Ok(_) => {}
-                //         Err(e) => eprintln!("Could not revert `$PATH`. '{}'", e),
-                //     };
-                // }
+        Some(SubCmd::Revert(rev_opts)) => {
+            rev_opts.validate()?;
+            match revert_path(&rev_opts) {
+                Ok(_) => {}
+                Err(e) => eprintln!("Could not revert `$PATH`. {}", e),
+            }
+        }
     }
     Ok(())
 }
