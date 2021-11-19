@@ -1,32 +1,30 @@
 //! Command line argument parsing and decision making.
 
 use crate::path::revert_path;
-use crate::path::{add_to_path, change_priority, clean_path, read::read_path, rm_from_path};
+use crate::path::{change_priority, clean_path, read::read_path, rm_from_path};
 use clap::{
     app_from_crate, crate_authors, crate_description, crate_name, crate_version, AppSettings, Arg,
     ArgMatches,
 };
 use std::{
-    io::{Error, ErrorKind},
+    io,
     path::{Path, PathBuf},
 };
 use structopt::StructOpt;
 
+use crate::path::add::{add_to_path, AddOpt};
+
+/// Configuration for the entire application.
+///
+/// This is specified by the user through the CLI.
 #[derive(Debug, StructOpt)]
-#[structopt(name = crate_name!(), author = crate_authors!(), about = crate_description!(), settings = &[AppSettings::ColoredHelp, AppSettings::ColorAuto])]
+#[structopt(
+    name = crate_name!(),
+    author = crate_authors!(),
+    about = crate_description!(),
+    settings = &[AppSettings::ColoredHelp, AppSettings::ColorAuto]
+)]
 pub struct Opt {
-    /// Don't print warnings when modifying `$PATH`.
-    #[structopt(short, long)]
-    quiet: bool,
-
-    /// Only show the changes to `$PATH`, don't actually make changes to `$PATH`
-    #[structopt(short = "n", long = "dry-run")]
-    dry_run: bool,
-
-    /// Add current `$PATH` to the history
-    #[structopt(short = "H", long)]
-    history: bool,
-
     #[structopt(subcommand)]
     cmd: Option<SubCmd>,
 }
@@ -109,51 +107,18 @@ pub fn execute_cli() -> Result<(), Error> {
                 println!("{}", p.display());
             }
         }
-        _ => {} // ("add", Some(submatches)) => {
-                //     // read command line options
-                //     let indir = submatches.values_of("dir");
-                //     if indir.is_none() {
-                //         return Err(Error::new(
-                //             ErrorKind::InvalidInput,
-                //             "Invalid input. Please double check the directories you intend to add.",
-                //         ));
-                //     }
-                //     let mut indirs: Vec<PathBuf> = indir.unwrap().map(|d| PathBuf::from(d)).collect();
-                //     let prepend = submatches.is_present("prepend");
-                //     let dry_run = submatches.is_present("dry_run");
-                //     let add_to_history = submatches.is_present("history");
-
-                //     // check for the existence of directories to be added
-                //     let missing_dirs: Vec<&Path> = indirs
-                //         .iter()
-                //         .filter(|&d| !d.exists())
-                //         .map(|d| d.as_path())
-                //         .collect();
-                //     let _all_dirs_exist = missing_dirs.len() == 0;
-
-                //     if !_all_dirs_exist {
-                //         // proceed if `--force` is supplied
-                //         if submatches.is_present("force") {
-                //             return add_to_path(&mut indirs, prepend, dry_run, add_to_history);
-                //         } else {
-                //             // don't proceed, tell the user to try again
-                //             return Err(Error::new(
-                //                 ErrorKind::NotFound,
-                //                 format!("Directory `{}` does not exist. If you still want to add this, re-run with `-f/--force`.", missing_dirs[0].display())
-                //             ));
-                //         }
-                //     } else {
-                //         return add_to_path(&mut indirs, prepend, dry_run, add_to_history);
-                //     }
-                // }
-                // ("rm", Some(submatches)) => {
+        Some(SubCmd::Add(add_opts)) => {
+            add_opts.validate()?;
+            add_to_path(&add_opts)?;
+        }
+        _ => {} // ("rm", Some(submatches)) => {
                 //     // read command line options
                 //     let indir = PathBuf::from(submatches.value_of("dir").unwrap());
                 //     let dry_run = submatches.is_present("dry_run");
                 //     let add_to_history = submatches.is_present("history");
 
-                //     return rm_from_path(indir, dry_run, add_to_history);
-                // }
+                // return rm_from_path(indir, dry_run, add_to_history);
+                //
                 // ("up", Some(submatches)) => {
                 //     // read command line options
                 //     let indir = PathBuf::from(submatches.value_of("dir").unwrap());
