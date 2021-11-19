@@ -1,18 +1,15 @@
 //! Command line argument parsing and decision making.
 
 use crate::path::revert_path;
-use crate::path::{change_priority, clean_path, read::read_path, rm_from_path};
-use clap::{
-    app_from_crate, crate_authors, crate_description, crate_name, crate_version, AppSettings, Arg,
-    ArgMatches,
-};
-use std::{
-    io,
-    path::{Path, PathBuf},
-};
+use crate::path::{change_priority, clean_path, read::read_path};
+use clap::{crate_authors, crate_description, crate_name, AppSettings};
+use std::{io, path::PathBuf};
 use structopt::StructOpt;
 
-use crate::path::add::{add_to_path, AddOpt};
+use crate::path::{
+    add::{add_to_path, AddOpt},
+    remove::{rm_from_path, RmOpt},
+};
 
 /// Configuration for the entire application.
 ///
@@ -57,31 +54,6 @@ enum SubCmd {
     )]
     Ls,
     Revert(RevertOpt),
-}
-
-#[derive(Debug, StructOpt)]
-#[structopt(
-    about = "Remove a directory",
-    author = crate_authors!(),
-    visible_alias = "del",
-    settings = &[AppSettings::ColoredHelp, AppSettings::ColorAuto]
-)]
-struct RmOpt {
-    /// Directory(ies) to remove
-    #[structopt(default_value = ".")]
-    dirs: Vec<PathBuf>,
-
-    /// Don't print warnings when modifying `$PATH`.
-    #[structopt(short, long)]
-    quiet: bool,
-
-    /// Add current `$PATH` to the history
-    #[structopt(short = "H", long)]
-    history: bool,
-
-    /// Don't do anything, just preview what this command would do
-    #[structopt(short = "n", long = "dry-run")]
-    dry_run: bool,
 }
 
 #[derive(Debug, StructOpt)]
@@ -167,15 +139,11 @@ pub fn execute_cli() -> io::Result<()> {
             add_opts.validate()?;
             add_to_path(&add_opts)?;
         }
-        _ => {} // ("rm", Some(submatches)) => {
-                //     // read command line options
-                //     let indir = PathBuf::from(submatches.value_of("dir").unwrap());
-                //     let dry_run = submatches.is_present("dry_run");
-                //     let add_to_history = submatches.is_present("history");
-
-                // return rm_from_path(indir, dry_run, add_to_history);
-                //
-                // ("up", Some(submatches)) => {
+        Some(SubCmd::Rm(rm_opts)) => {
+            rm_opts.validate()?;
+            rm_from_path(&rm_opts)?;
+        }
+        _ => {} // ("up", Some(submatches)) => {
                 //     // read command line options
                 //     let indir = PathBuf::from(submatches.value_of("dir").unwrap());
                 //     let jump = match submatches.value_of("jump").unwrap().parse::<usize>() {

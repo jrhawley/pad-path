@@ -12,31 +12,11 @@ use std::path::{Path, PathBuf, MAIN_SEPARATOR};
 pub mod add;
 pub mod history;
 pub mod read;
+pub mod remove;
 pub mod write;
 
 use self::history::get_nth_last_revision;
 use self::{read::read_path, write::replace_path};
-
-/// Remove the given directory to the `$PATH` environment variable
-pub fn rm_from_path(dir: PathBuf, dry_run: bool, add_to_history: bool) -> Result<(), Error> {
-    let current_path = read_path();
-    let idx = current_path.iter().position(|x| *x == dir);
-    // if the directory is found within PATH
-    if let Some(i) = idx {
-        let mut vpath = current_path.clone();
-        vpath.remove(i);
-        let newpath = join_paths(vpath).unwrap();
-        replace_path(newpath, dry_run, add_to_history)
-    } else {
-        Err(Error::new(
-            ErrorKind::NotFound,
-            format!(
-                "Directory `{}` not found in `$PATH`. No changes made.",
-                dir.display()
-            ),
-        ))
-    }
-}
 
 /// Change the priority of a directory by moving it earlier or later in PATH
 pub fn change_priority(
