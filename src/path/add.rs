@@ -88,7 +88,7 @@ pub fn add_to_path(opts: &AddOpt) -> io::Result<()> {
             )
         );
         if !opts.quiet {
-            eprintln!("{}", err.to_string())
+            eprintln!("{}", err)
         }
         return Err(err);
     }

@@ -61,14 +61,29 @@ pub fn rm_from_path(opts: &RmOpt) -> io::Result<()> {
         let mut vpath = current_path.clone();
         vpath.remove(i);
         let newpath = join_paths(vpath).unwrap();
-        replace_path(newpath, opts.dry_run, opts.history)
+        match replace_path(newpath, opts.dry_run, opts.history, opts.quiet) {
+            Ok(()) => Ok(()),
+            Err(e) => {
+                if !opts.quiet {
+                    eprintln!("{}", e);
+                }
+
+                Err(e)
+            }
+        }
     } else {
-        Err(io::Error::new(
+        let err = io::Error::new(
             io::ErrorKind::NotFound,
             format!(
                 "Directory `{}` not found in `$PATH`. No changes made.",
                 opts.dir.display()
             ),
-        ))
+        );
+
+        if !opts.quiet {
+            eprintln!("{}", err);
+        }
+
+        Err(err)
     }
 }
