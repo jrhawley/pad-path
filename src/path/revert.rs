@@ -45,8 +45,26 @@ impl RevertOpt {
 /// This makes use of the `.path_history` file
 pub fn revert_path(opts: &RevertOpt) -> io::Result<()> {
     // look up an old `$PATH` from the path history
-    let newpath = get_nth_last_revision(opts.revision)?;
+    let newpath = match get_nth_last_revision(opts.revision) {
+        Ok(s) => s,
+        Err(e) => {
+            if !opts.quiet {
+                eprintln!("{}", e);
+            }
+
+            return Err(e);
+        }
+    };
 
     // replace the current path with the revised one
-    replace_path(newpath, opts.dry_run, opts.history)
+    match replace_path(newpath, opts.dry_run, opts.history, opts.quiet) {
+        Ok(()) => Ok(()),
+        Err(e) => {
+            if !opts.quiet {
+                eprintln!("Could not revert `$PATH`. {}. No changes made.", e);
+            }
+
+            Err(e)
+        }
+    }
 }

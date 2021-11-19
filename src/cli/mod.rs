@@ -93,10 +93,7 @@ pub fn execute_cli() -> io::Result<()> {
         }
         Some(SubCmd::Revert(rev_opts)) => {
             rev_opts.validate()?;
-            match revert_path(&rev_opts) {
-                Ok(_) => {}
-                Err(e) => eprintln!("Could not revert `$PATH`. {}", e),
-            }
+            revert_path(&rev_opts)?;
         }
     }
     Ok(())
