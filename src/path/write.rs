@@ -6,11 +6,16 @@ use std::io;
 use crate::path::{history::write_to_history, read::read_raw_path};
 
 /// Replace the `$PATH` environment variable.
-pub fn replace_path(newpath: OsString, dry_run: bool, add_to_history: bool) -> io::Result<()> {
+pub fn replace_path(
+    newpath: OsString,
+    dry_run: bool,
+    add_to_history: bool,
+    quiet: bool,
+) -> io::Result<()> {
     let current_raw_path = read_raw_path().unwrap();
     let current_path = String::from(current_raw_path.to_str().unwrap());
     let _new_path = String::from(newpath.to_str().unwrap());
-    if dry_run {
+    if dry_run && !quiet {
         eprintln!("`$PATH` before modification:\n\t{}", &current_path);
         eprintln!("`$PATH` after modification:\n\t{}", &_new_path);
         // skip the remainder of the function
