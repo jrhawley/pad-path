@@ -7,7 +7,7 @@ use std::io;
 use std::path::{Path, PathBuf};
 use structopt::StructOpt;
 
-use super::clean_dir_name;
+use super::clean::clean_dirs_names;
 use super::read::read_path;
 use super::write::replace_path;
 
@@ -44,7 +44,7 @@ pub struct AddOpt {
 }
 
 impl AddOpt {
-    /// Validate the options
+    /// Validate options
     pub fn validate(&self) -> io::Result<()> {
         // check if directory(ies) exist if `force` is not specified
         if !self.force {
@@ -69,7 +69,7 @@ impl AddOpt {
 pub fn add_to_path(opts: &AddOpt) -> io::Result<()> {
     // read the path, clean each entry, and convert into Vec<PathBuf>
     let mut current_path: Vec<PathBuf> = read_path();
-    let mut cleaned_dirs: Vec<PathBuf> = opts.dirs.iter().map(|d| clean_dir_name(d)).collect();
+    let mut cleaned_dirs: Vec<PathBuf> = clean_dirs_names(&opts.dirs);
 
     // check that the directories to be added don't already exist in the PATH
     let _current_dirs: HashSet<PathBuf> = current_path.iter().map(|d| d.clone()).collect();

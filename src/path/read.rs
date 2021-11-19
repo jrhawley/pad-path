@@ -6,7 +6,7 @@ use std::{
     path::PathBuf,
 };
 
-use crate::path::clean_dir_name;
+use crate::path::clean::clean_dir_name;
 
 /// Get the value for the `$PATH` environment variable.
 pub fn read_raw_path() -> Option<OsString> {
