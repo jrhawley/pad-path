@@ -80,15 +80,17 @@ pub fn add_to_path(opts: &AddOpt) -> io::Result<()> {
         .map(|d| d.as_path())
         .collect();
     if _intersecting_dirs.len() > 0 {
-        return Err(
-            io::Error::new(
-                io::ErrorKind::AlreadyExists,
-                format!(
-                    "Directory `{}` already exists in `$PATH`. Use `pad up/dn` to change priority of this directory. No changes made.",
-                    _intersecting_dirs[0].display()
-                )
+        let err = io::Error::new(
+            io::ErrorKind::AlreadyExists,
+            format!(
+                "Directory `{}` already exists in `$PATH`. Use `pad up/dn` to change priority of this directory, or `pad add -f` to force it. No changes made.",
+                _intersecting_dirs[0].display()
             )
         );
+        if !opts.quiet {
+            eprintln!("{}", err.to_string())
+        }
+        return Err(err);
     }
     let newpath = match opts.prepend {
         true => {
@@ -100,5 +102,13 @@ pub fn add_to_path(opts: &AddOpt) -> io::Result<()> {
             join_paths(current_path).unwrap()
         }
     };
-    replace_path(newpath, opts.dry_run, opts.history)
+    match replace_path(newpath, opts.dry_run, opts.history, opts.quiet) {
+        Ok(()) => Ok(()),
+        Err(e) => {
+            if !opts.quiet {
+                eprintln!("{}", e);
+            }
+            Err(e)
+        }
+    }
 }
