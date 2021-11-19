@@ -21,5 +21,6 @@ pub fn replace_path(newpath: OsString, dry_run: bool, add_to_history: bool) -> i
         write_to_history(&current_raw_path)?;
     }
     println!("{}", &_new_path);
+
     Ok(())
 }
