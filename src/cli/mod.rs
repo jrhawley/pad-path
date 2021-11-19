@@ -198,13 +198,6 @@ pub fn execute_cli() -> io::Result<()> {
                 //         Err(e) => eprintln!("Could not revert `$PATH`. '{}'", e),
                 //     };
                 // }
-                // // for anything else, print the unaltered `$PATH` out of caution
-                // (_, _) => {
-                //     let vpath = read_path();
-                //     for p in &vpath {
-                //         println!("{}", p.display());
-                //     }
-                // }
     }
     Ok(())
 }
