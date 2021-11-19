@@ -46,7 +46,7 @@ pub fn get_nth_last_revision(n: u128) -> io::Result<OsString> {
     if !history_filepath.exists() {
         return Err(io::Error::new(
             io::ErrorKind::NotFound,
-            "`$PATH` history file not found. Nothing to revert to.",
+            "History file not found. Nothing to revert to.",
         ));
     }
     let history_file = OpenOptions::new().read(true).open(history_filepath)?;
@@ -59,8 +59,11 @@ pub fn get_nth_last_revision(n: u128) -> io::Result<OsString> {
         Some(s) => OsString::from(s),
         None => return Err(io::Error::new(
             io::ErrorKind::InvalidInput,
-            format!("`$PATH` history does not contain revision {}. Please specify a smaller revision number.", &n),
-        ))
+            format!(
+                "History does not contain revision {}. Please specify a smaller revision number.",
+                &n
+            ),
+        )),
     };
 
     Ok(revision_path)
