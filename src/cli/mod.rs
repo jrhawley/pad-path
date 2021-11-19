@@ -1,16 +1,16 @@
 //! Command line argument parsing and decision making.
 
-use crate::path::revert_path;
-use crate::path::{change_priority, read::read_path};
 use clap::{crate_authors, crate_description, crate_name, AppSettings};
-use std::{io, path::PathBuf};
+use std::io;
 use structopt::StructOpt;
 
 use crate::path::{
     add::{add_to_path, AddOpt},
     clean::{clean_path, CleanOpt},
+    priority::{decrease_priority, increase_priority, MvOpt},
     remove::{rm_from_path, RmOpt},
 };
+use crate::path::{read::read_path, revert_path};
 
 /// Configuration for the entire application.
 ///
@@ -55,29 +55,6 @@ enum SubCmd {
     )]
     Ls,
     Revert(RevertOpt),
-}
-
-#[derive(Debug, StructOpt)]
-struct MvOpt {
-    /// Directory to move
-    #[structopt(default_value = ".")]
-    dir: PathBuf,
-
-    /// Move directory up `JUMP` spots in the `$PATH`
-    #[structopt(default_value = "1")]
-    jump: usize,
-
-    /// Don't print warnings when modifying `$PATH`.
-    #[structopt(short, long)]
-    quiet: bool,
-
-    /// Add current `$PATH` to the history
-    #[structopt(short = "H", long)]
-    history: bool,
-
-    /// Don't do anything, just preview what this command would do
-    #[structopt(short = "n", long = "dry-run")]
-    dry_run: bool,
 }
 
 #[derive(Debug, StructOpt)]
@@ -134,42 +111,15 @@ pub fn execute_cli() -> io::Result<()> {
                 Err(e) => eprintln!("Could not clean `$PATH`. '{}'", e),
             }
         }
-        _ => {} // ("up", Some(submatches)) => {
-                //     // read command line options
-                //     let indir = PathBuf::from(submatches.value_of("dir").unwrap());
-                //     let jump = match submatches.value_of("jump").unwrap().parse::<usize>() {
-                //         Ok(j) => j,
-                //         Err(_) => {
-                //             return Err(Error::new(
-                //                 ErrorKind::InvalidInput,
-                //                 "JUMP must be a whole number.",
-                //             ))
-                //         }
-                //     };
-                //     let dry_run = submatches.is_present("dry_run");
-                //     let add_to_history = submatches.is_present("history");
-
-                //     return change_priority(indir, -1 * (jump as i8), dry_run, add_to_history);
-                // }
-                // ("dn", Some(submatches)) => {
-                //     // read command line options
-                //     let indir = PathBuf::from(submatches.value_of("dir").unwrap());
-                //     let jump = match submatches.value_of("jump").unwrap().parse::<usize>() {
-                //         Ok(j) => j,
-                //         Err(_) => {
-                //             return Err(Error::new(
-                //                 ErrorKind::InvalidInput,
-                //                 "JUMP must be a whole number.",
-                //             ))
-                //         }
-                //     };
-                //     let dry_run = submatches.is_present("dry_run");
-                //     let add_to_history = submatches.is_present("history");
-
-                //     return change_priority(indir, jump as i8, dry_run, add_to_history);
-                // }
-
-                // ("revert", Some(submatches)) => {
+        Some(SubCmd::Up(up_opts)) => {
+            up_opts.validate()?;
+            increase_priority(&up_opts)?;
+        }
+        Some(SubCmd::Dn(dn_opts)) => {
+            dn_opts.validate()?;
+            decrease_priority(&dn_opts)?;
+        }
+        _ => {} // ("revert", Some(submatches)) => {
                 //     let revision = match submatches
                 //         .value_of("revision")
                 //         .unwrap_or("1")
