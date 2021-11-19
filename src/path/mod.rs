@@ -10,6 +10,7 @@ pub mod history;
 pub mod priority;
 pub mod read;
 pub mod remove;
+pub mod revert;
 pub mod write;
 
 use self::{history::get_nth_last_revision, write::replace_path};
