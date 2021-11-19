@@ -63,7 +63,6 @@ enum SubCmd {
 /// Parsing of the arguments is explicitly handled by [`parse_cli`](fn.parse_cli.html).
 pub fn execute_cli() -> io::Result<()> {
     let opt = Opt::from_args();
-    println!("{:#?}", &opt);
 
     match &opt.cmd {
         Some(SubCmd::Ls) | None => {
