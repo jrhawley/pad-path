@@ -34,42 +34,54 @@ pub struct Opt {
 enum SubCmd {
     Add(AddOpt),
     Rm(RmOpt),
-    #[structopt(about = "Increase priority for a directory", author = crate_authors!(), visible_alias = "inc", settings = &[AppSettings::ColoredHelp, AppSettings::ColorAuto])]
-    Up(MvOpt),
-    #[structopt(about = "Decrease priority for a directory", author = crate_authors!(), visible_aliases = &["dec", "down"], settings = &[AppSettings::ColoredHelp, AppSettings::ColorAuto])]
-    Dn(MvOpt),
     #[structopt(
-        about = "Remove duplicates and non-existent directories", author = crate_authors!(),
-        visible_alias = "dedup", settings = &[AppSettings::ColoredHelp, AppSettings::ColorAuto]
+        about = "Increase priority for a directory",
+        author = crate_authors!(),
+        visible_alias = "inc",
+        settings = &[AppSettings::ColoredHelp, AppSettings::ColorAuto]
     )]
+    Up(MvOpt),
+    #[structopt(
+        about = "Decrease priority for a directory",
+        author = crate_authors!(),
+        visible_aliases = &["dec", "down"],
+        settings = &[AppSettings::ColoredHelp, AppSettings::ColorAuto]
+    )]
+    Dn(MvOpt),
     Clean,
-    #[structopt(about = "List the directories in `$PATH`", author = crate_authors!(), visible_alias = "echo", settings = &[AppSettings::ColoredHelp, AppSettings::ColorAuto])]
+    #[structopt(
+        about = "List the directories in `$PATH`",
+        author = crate_authors!(),
+        visible_alias = "echo",
+        settings = &[AppSettings::ColoredHelp, AppSettings::ColorAuto]
+    )]
     Ls,
     Revert(RevertOpt),
 }
 
 #[derive(Debug, StructOpt)]
-#[structopt(about = "Add a directory", author = crate_authors!(), settings = &[AppSettings::ColoredHelp, AppSettings::ColorAuto])]
-struct AddOpt {
-    /// Directory to add.
-    #[structopt(default_value = ".")]
-    dir: PathBuf,
-
-    /// Forcefully add a directory that doesn't necessarily exist.
-    #[structopt(short, long)]
-    force: bool,
-
-    /// Make this directory the highest priority by prepending it to `$PATH`
-    #[structopt(short, long)]
-    prepend: bool,
-}
-
-#[derive(Debug, StructOpt)]
-#[structopt(about = "Remove a directory", author = crate_authors!(), visible_alias = "del", settings = &[AppSettings::ColoredHelp, AppSettings::ColorAuto])]
+#[structopt(
+    about = "Remove a directory",
+    author = crate_authors!(),
+    visible_alias = "del",
+    settings = &[AppSettings::ColoredHelp, AppSettings::ColorAuto]
+)]
 struct RmOpt {
-    /// Directory to remove
+    /// Directory(ies) to remove
     #[structopt(default_value = ".")]
-    dir: PathBuf,
+    dirs: Vec<PathBuf>,
+
+    /// Don't print warnings when modifying `$PATH`.
+    #[structopt(short, long)]
+    quiet: bool,
+
+    /// Add current `$PATH` to the history
+    #[structopt(short = "H", long)]
+    history: bool,
+
+    /// Don't do anything, just preview what this command would do
+    #[structopt(short = "n", long = "dry-run")]
+    dry_run: bool,
 }
 
 #[derive(Debug, StructOpt)]
@@ -81,24 +93,68 @@ struct MvOpt {
     /// Move directory up `JUMP` spots in the `$PATH`
     #[structopt(default_value = "1")]
     jump: usize,
+
+    /// Don't print warnings when modifying `$PATH`.
+    #[structopt(short, long)]
+    quiet: bool,
+
+    /// Add current `$PATH` to the history
+    #[structopt(short = "H", long)]
+    history: bool,
+
+    /// Don't do anything, just preview what this command would do
+    #[structopt(short = "n", long = "dry-run")]
+    dry_run: bool,
 }
 
 #[derive(Debug, StructOpt)]
 #[structopt(
-    about = "Revert to a previous version of `$PATH`", author = crate_authors!(),
-    visible_alias = "echo", settings = &[AppSettings::ColoredHelp, AppSettings::ColorAuto]
+    about = "Remove duplicates and non-existent directories",
+    author = crate_authors!(),
+    visible_alias = "dedup",
+    settings = &[AppSettings::ColoredHelp, AppSettings::ColorAuto]
+)]
+struct CleanOpt {
+    /// Add current `$PATH` to the history
+    #[structopt(short = "H", long)]
+    history: bool,
+
+    /// Don't do anything, just preview what this command would do
+    #[structopt(short = "n", long = "dry-run")]
+    dry_run: bool,
+}
+
+#[derive(Debug, StructOpt)]
+#[structopt(
+    about = "Revert to a previous version of `$PATH`",
+    author = crate_authors!(),
+    visible_alias = "echo",
+    settings = &[AppSettings::ColoredHelp, AppSettings::ColorAuto]
 )]
 struct RevertOpt {
     /// `$PATH` revision number to revert to. If not specified, reverts to the most recent version.
     #[structopt(default_value = "1")]
     revision: usize,
+
+    /// Don't print warnings when modifying `$PATH`.
+    #[structopt(short, long)]
+    quiet: bool,
+
+    /// Add current `$PATH` to the history
+    #[structopt(short = "H", long)]
+    history: bool,
+
+    /// Don't do anything, just preview what this command would do
+    #[structopt(short = "n", long = "dry-run")]
+    dry_run: bool,
 }
 
 /// Execute the command issued from the command line.
 ///
 /// Parsing of the arguments is explicitly handled by [`parse_cli`](fn.parse_cli.html).
-pub fn execute_cli() -> Result<(), Error> {
+pub fn execute_cli() -> io::Result<()> {
     let opt = Opt::from_args();
+    println!("{:#?}", &opt);
 
     match &opt.cmd {
         Some(SubCmd::Ls) | None => {
