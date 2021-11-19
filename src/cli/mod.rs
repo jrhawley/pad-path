@@ -82,10 +82,7 @@ pub fn execute_cli() -> io::Result<()> {
         }
         Some(SubCmd::Clean(clean_opts)) => {
             clean_opts.validate()?;
-            match clean_path(&clean_opts) {
-                Ok(_) => {}
-                Err(e) => eprintln!("Could not clean `$PATH`. '{}'", e),
-            }
+            clean_path(&clean_opts)?;
         }
         Some(SubCmd::Up(up_opts)) => {
             up_opts.validate()?;

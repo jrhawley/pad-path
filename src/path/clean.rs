@@ -23,6 +23,10 @@ use super::{read::read_path, write::replace_path};
     settings = &[AppSettings::ColoredHelp, AppSettings::ColorAuto]
 )]
 pub struct CleanOpt {
+    /// Don't print warnings when modifying `$PATH`.
+    #[structopt(short, long)]
+    quiet: bool,
+
     /// Add current `$PATH` to the history
     #[structopt(short = "H", long)]
     history: bool,
@@ -52,7 +56,15 @@ pub fn clean_path(opts: &CleanOpt) -> io::Result<()> {
         .unique()
         .collect();
     let newpath = join_paths(vpath).unwrap();
-    replace_path(newpath, opts.dry_run, opts.history)
+    match replace_path(newpath, opts.dry_run, opts.history, opts.quiet) {
+        Ok(()) => Ok(()),
+        Err(e) => {
+            if !opts.quiet {
+                eprintln!("Could not clean `$PATH`. {}", e);
+            }
+            Err(e)
+        }
+    }
 }
 
 /// Clean directory names by removing trailing folder separator characters and
