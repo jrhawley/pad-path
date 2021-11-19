@@ -2,61 +2,20 @@
 
 use itertools::Itertools;
 use std::cmp::min;
-use std::collections::HashSet;
 use std::env::{current_dir, join_paths};
 use std::fs::canonicalize;
 use std::io::{Error, ErrorKind};
+#[cfg(target_os = "windows")]
+use std::os::windows::ffi::OsStrExt;
 use std::path::{Path, PathBuf, MAIN_SEPARATOR};
 
+pub mod add;
 pub mod history;
 pub mod read;
 pub mod write;
 
-#[cfg(target_os = "windows")]
-use std::os::windows::ffi::OsStrExt;
-
 use self::history::get_nth_last_revision;
 use self::{read::read_path, write::replace_path};
-
-/// Add the given directory to the `$PATH` environment variable
-pub fn add_to_path(
-    dirs: &mut Vec<PathBuf>,
-    prepend: bool,
-    dry_run: bool,
-    add_to_history: bool,
-) -> Result<(), Error> {
-    // read the path, clean each entry, and convert into Vec<PathBuf>
-    let mut current_path: Vec<PathBuf> = read_path();
-    let mut cleaned_dirs: Vec<PathBuf> = dirs.iter().map(|d| clean_dir_name(d)).collect();
-
-    // check that the directories to be added don't already exist in the PATH
-    let _current_dirs: HashSet<PathBuf> = current_path.iter().map(|d| d.clone()).collect();
-    let _new_dirs: HashSet<PathBuf> = cleaned_dirs.iter().map(|d| d.clone()).collect();
-    let _intersecting_dirs: Vec<&Path> = _current_dirs
-        .intersection(&_new_dirs)
-        .into_iter()
-        .map(|d| d.as_path())
-        .collect();
-    if _intersecting_dirs.len() > 0 {
-        return Err(
-            Error::new(
-                ErrorKind::AlreadyExists,
-                format!("Directory `{}` already exists in `$PATH`. Use `pad up/dn` to change priority of this directory. No changes made.", _intersecting_dirs[0].display())
-            )
-        );
-    }
-    let newpath = match prepend {
-        true => {
-            cleaned_dirs.append(&mut current_path);
-            join_paths(cleaned_dirs).unwrap()
-        }
-        false => {
-            current_path.append(&mut cleaned_dirs);
-            join_paths(current_path).unwrap()
-        }
-    };
-    replace_path(newpath, dry_run, add_to_history)
-}
 
 /// Remove the given directory to the `$PATH` environment variable
 pub fn rm_from_path(dir: PathBuf, dry_run: bool, add_to_history: bool) -> Result<(), Error> {
