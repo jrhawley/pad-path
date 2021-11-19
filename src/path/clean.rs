@@ -1,5 +1,8 @@
 //! Clean up the `$PATH`.
 
+#[cfg(target_os = "windows")]
+use std::os::windows::ffi::OsStrExt;
+
 use clap::{crate_authors, AppSettings};
 use itertools::Itertools;
 use std::{

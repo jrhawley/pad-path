@@ -1,8 +1,5 @@
 //! Read, write, and process the current `$PATH`.
 
-#[cfg(target_os = "windows")]
-use std::os::windows::ffi::OsStrExt;
-
 pub mod add;
 pub mod clean;
 pub mod history;
