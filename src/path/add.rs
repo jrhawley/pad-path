@@ -72,8 +72,8 @@ pub fn add_to_path(opts: &AddOpt) -> io::Result<()> {
     let mut cleaned_dirs: Vec<PathBuf> = clean_dirs_names(&opts.dirs);
 
     // check that the directories to be added don't already exist in the PATH
-    let _current_dirs: HashSet<PathBuf> = current_path.iter().map(|d| d.clone()).collect();
-    let _new_dirs: HashSet<PathBuf> = cleaned_dirs.iter().map(|d| d.clone()).collect();
+    let _current_dirs: HashSet<PathBuf> = current_path.iter().cloned().collect();
+    let _new_dirs: HashSet<PathBuf> = cleaned_dirs.iter().cloned().collect();
     let _intersecting_dirs: Vec<&Path> = _current_dirs
         .intersection(&_new_dirs)
         .into_iter()
