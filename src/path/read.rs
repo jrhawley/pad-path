@@ -18,7 +18,7 @@ pub fn read_path() -> Vec<PathBuf> {
     match read_raw_path() {
         Some(path_str) => split_paths(&path_str)
             .into_iter()
-            .map(|d| clean_dir_name(d))
+            .map(clean_dir_name)
             .collect(),
         None => vec![PathBuf::from("")],
     }
