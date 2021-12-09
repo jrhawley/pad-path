@@ -1,12 +1,11 @@
 //! Remove a directory or multiple directories from the `$PATH`.
 
 use clap::{crate_authors, AppSettings};
-use std::env::join_paths;
 use std::io;
 use std::path::PathBuf;
 use structopt::StructOpt;
 
-use super::read::read_path;
+use super::read::{read_path, combine_path_like};
 use super::write::replace_path;
 
 #[derive(Debug, StructOpt)]
@@ -60,7 +59,7 @@ pub fn rm_from_path(opts: &RmOpt) -> io::Result<()> {
     if let Some(i) = idx {
         let mut vpath = current_path;
         vpath.remove(i);
-        let newpath = join_paths(vpath).unwrap();
+        let newpath = combine_path_like(vpath)?;
         match replace_path(newpath, opts.dry_run, opts.history, opts.quiet) {
             Ok(()) => Ok(()),
             Err(e) => {

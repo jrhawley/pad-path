@@ -1,9 +1,9 @@
 //! Change the priority of a directory in `$PATH`.
 
-use std::{cmp::min, env::join_paths, io, path::PathBuf};
+use std::{cmp::min, io, path::PathBuf};
 use structopt::StructOpt;
 
-use super::{read::read_path, write::replace_path};
+use super::{read::{read_path, combine_path_like}, write::replace_path};
 
 #[derive(Debug, StructOpt)]
 pub struct MvOpt {
@@ -113,7 +113,7 @@ fn change_priority(opts: &MvOpt, direction_factor: i8) -> io::Result<()> {
             },
         };
 
-        let newpath = join_paths(vpath).unwrap();
+        let newpath = combine_path_like(vpath)?;
         match replace_path(newpath, opts.dry_run, opts.history, opts.quiet) {
             Ok(()) => Ok(()),
             Err(e) => {

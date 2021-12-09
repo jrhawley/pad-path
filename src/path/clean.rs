@@ -6,14 +6,14 @@ use std::os::windows::ffi::OsStrExt;
 use clap::{crate_authors, AppSettings};
 use itertools::Itertools;
 use std::{
-    env::{current_dir, join_paths},
+    env::current_dir,
     fs::canonicalize,
     io,
     path::{Path, PathBuf, MAIN_SEPARATOR},
 };
 use structopt::StructOpt;
 
-use super::{read::read_path, write::replace_path};
+use super::{read::{read_path, combine_path_like}, write::replace_path};
 
 #[derive(Debug, StructOpt)]
 #[structopt(
@@ -55,7 +55,7 @@ pub fn clean_path(opts: &CleanOpt) -> io::Result<()> {
         .filter(|p| p.exists())
         .unique()
         .collect();
-    let newpath = join_paths(vpath).unwrap();
+    let newpath = combine_path_like(vpath)?;
     match replace_path(newpath, opts.dry_run, opts.history, opts.quiet) {
         Ok(()) => Ok(()),
         Err(e) => {

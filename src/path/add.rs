@@ -2,13 +2,12 @@
 
 use clap::{crate_authors, AppSettings};
 use std::collections::HashSet;
-use std::env::join_paths;
 use std::io;
 use std::path::{Path, PathBuf};
 use structopt::StructOpt;
 
 use super::clean::clean_dirs_names;
-use super::read::read_path;
+use super::read::{read_path, combine_path_like};
 use super::write::replace_path;
 
 #[derive(Debug, StructOpt)]
@@ -95,13 +94,13 @@ pub fn add_to_path(opts: &AddOpt) -> io::Result<()> {
     let newpath = match opts.prepend {
         true => {
             cleaned_dirs.append(&mut current_path);
-            join_paths(cleaned_dirs).unwrap()
+            combine_path_like(cleaned_dirs)
         }
         false => {
             current_path.append(&mut cleaned_dirs);
-            join_paths(current_path).unwrap()
+            combine_path_like(current_path)
         }
-    };
+    }?;
     match replace_path(newpath, opts.dry_run, opts.history, opts.quiet) {
         Ok(()) => Ok(()),
         Err(e) => {
