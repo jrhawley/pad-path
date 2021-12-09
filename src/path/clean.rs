@@ -86,7 +86,7 @@ pub fn clean_dir_name<P: AsRef<Path>>(dir: P) -> PathBuf {
 
 /// Clean a list of directories
 pub fn clean_dirs_names<P: AsRef<Path>>(dirs: &Vec<P>) -> Vec<PathBuf> {
-    dirs.iter().map(|dir| clean_dir_name(dir)).collect()
+    dirs.iter().map(clean_dir_name).collect()
 }
 
 /// Force a PathBuf to be absolute, or make it absolute using the current directory

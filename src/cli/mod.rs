@@ -73,27 +73,27 @@ pub fn execute_cli() -> io::Result<()> {
         }
         Some(SubCmd::Add(add_opts)) => {
             add_opts.validate()?;
-            add_to_path(&add_opts)?;
+            add_to_path(add_opts)?;
         }
         Some(SubCmd::Rm(rm_opts)) => {
             rm_opts.validate()?;
-            rm_from_path(&rm_opts)?;
+            rm_from_path(rm_opts)?;
         }
         Some(SubCmd::Clean(clean_opts)) => {
             clean_opts.validate()?;
-            clean_path(&clean_opts)?;
+            clean_path(clean_opts)?;
         }
         Some(SubCmd::Up(up_opts)) => {
             up_opts.validate()?;
-            increase_priority(&up_opts)?;
+            increase_priority(up_opts)?;
         }
         Some(SubCmd::Dn(dn_opts)) => {
             dn_opts.validate()?;
-            decrease_priority(&dn_opts)?;
+            decrease_priority(dn_opts)?;
         }
         Some(SubCmd::Revert(rev_opts)) => {
             rev_opts.validate()?;
-            revert_path(&rev_opts)?;
+            revert_path(rev_opts)?;
         }
     }
     Ok(())

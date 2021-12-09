@@ -58,7 +58,7 @@ pub fn rm_from_path(opts: &RmOpt) -> io::Result<()> {
     let idx = current_path.iter().position(|x| *x == opts.dir);
     // if the directory is found within PATH
     if let Some(i) = idx {
-        let mut vpath = current_path.clone();
+        let mut vpath = current_path;
         vpath.remove(i);
         let newpath = join_paths(vpath).unwrap();
         match replace_path(newpath, opts.dry_run, opts.history, opts.quiet) {

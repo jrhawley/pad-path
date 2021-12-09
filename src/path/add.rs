@@ -79,7 +79,7 @@ pub fn add_to_path(opts: &AddOpt) -> io::Result<()> {
         .into_iter()
         .map(|d| d.as_path())
         .collect();
-    if _intersecting_dirs.len() > 0 {
+    if !_intersecting_dirs.is_empty() {
         let err = io::Error::new(
             io::ErrorKind::AlreadyExists,
             format!(
