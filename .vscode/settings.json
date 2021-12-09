@@ -1,9 +1,13 @@
 {
     "cSpell.words": [
+        "behaviour",
+        "canonicalize",
         "dedup",
         "dryrun",
+        "itertools",
         "newpath",
-        "sbin"
+        "sbin",
+        "structopt"
     ],
     "cSpell.ignoreWords": [
         "indir",
