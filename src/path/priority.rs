@@ -51,7 +51,6 @@ fn change_priority(opts: &MvOpt, direction_factor: i8) -> io::Result<()> {
 
         let signed_jump = direction_factor * (opts.jump as i8);
         let signed_new_idx = i_signed + signed_jump;
-        let mut vpath: Vec<PathBuf>;
         let new_idx: usize;
         if signed_new_idx < 0 {
             new_idx = 0;
@@ -60,53 +59,60 @@ fn change_priority(opts: &MvOpt, direction_factor: i8) -> io::Result<()> {
         }
 
         // if moving to a higher priority
-        if signed_jump < 0 {
-            // get the first few elements of PATH
-            vpath = (0..new_idx)
-                .into_iter()
-                .map(|j| current_path[j].clone())
-                .collect();
-            // move `dir` into the next position
-            vpath.push(opts.dir.clone());
-            // add remaining elements
-            vpath.append(
-                &mut (new_idx..i)
+        let vpath: Vec<PathBuf> = match signed_jump.cmp(&0) {
+            std::cmp::Ordering::Less => {
+                // get the first few elements of PATH
+                let mut _vpath: Vec<PathBuf> = (0..new_idx)
                     .into_iter()
                     .map(|j| current_path[j].clone())
-                    .collect(),
-            );
-            vpath.append(
-                &mut ((i + 1)..current_path.len())
+                    .collect();
+                // move `dir` into the next position
+                _vpath.push(opts.dir.clone());
+                // add remaining elements
+                _vpath.append(
+                    &mut (new_idx..i)
+                        .into_iter()
+                        .map(|j| current_path[j].clone())
+                        .collect(),
+                );
+                _vpath.append(
+                    &mut ((i + 1)..current_path.len())
+                        .into_iter()
+                        .map(|j| current_path[j].clone())
+                        .collect(),
+                );
+
+                _vpath
+            },
+            std::cmp::Ordering::Equal => {
+                current_path
+            },
+            std::cmp::Ordering::Greater => {
+                // get the first few elements of PATH
+                let mut _vpath: Vec<PathBuf> = (0..i)
                     .into_iter()
                     .map(|j| current_path[j].clone())
-                    .collect(),
-            );
-        // if no change, do nothing
-        } else if signed_jump == 0 {
-            vpath = current_path.clone();
-        // if moving to a lower priority
-        } else {
-            // get the first few elements of PATH
-            vpath = (0..i)
-                .into_iter()
-                .map(|j| current_path[j].clone())
-                .collect();
-            vpath.append(
-                &mut ((i + 1)..(new_idx + 1))
-                    .into_iter()
-                    .map(|j| current_path[j].clone())
-                    .collect(),
-            );
-            // move `dir` into the next position
-            vpath.push(opts.dir.clone());
-            // add remaining elements
-            vpath.append(
-                &mut ((new_idx + 1)..current_path.len())
-                    .into_iter()
-                    .map(|j| current_path[j].clone())
-                    .collect(),
-            );
-        }
+                    .collect();
+                _vpath.append(
+                    &mut ((i + 1)..(new_idx + 1))
+                        .into_iter()
+                        .map(|j| current_path[j].clone())
+                        .collect(),
+                );
+                // move `dir` into the next position
+                _vpath.push(opts.dir.clone());
+                // add remaining elements
+                _vpath.append(
+                    &mut ((new_idx + 1)..current_path.len())
+                        .into_iter()
+                        .map(|j| current_path[j].clone())
+                        .collect(),
+                );
+
+                _vpath
+            },
+        };
+
         let newpath = join_paths(vpath).unwrap();
         match replace_path(newpath, opts.dry_run, opts.history, opts.quiet) {
             Ok(()) => Ok(()),
