@@ -4,7 +4,7 @@ use std::{
     env::{split_paths, var_os, join_paths},
     ffi::{OsString, OsStr},
     io,
-    path::{PathBuf, Path},
+    path::PathBuf,
 };
 
 use crate::path::clean::clean_dir_name;
