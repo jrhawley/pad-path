@@ -45,19 +45,54 @@ pub struct AddOpt {
 impl AddOpt {
     /// Validate options
     pub fn validate(&self) -> io::Result<()> {
-        // check if directory(ies) exist if `force` is not specified
-        if !self.force {
-            for d in &self.dirs {
-                if !d.exists() {
-                    return Err(io::Error::new(
-                        io::ErrorKind::InvalidData,
-                        format!(
-                            "Directory `{}`  does not exist. `Please double check the directories you intend to add.",
-                            d.display()
-                        )
-                    ));
+        if self.force {
+            return Ok(());
+        }
+
+        // check if directory(ies) exist
+        for d in &self.dirs {
+            if !d.exists() {
+                let err_nonexistent = io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    format!(
+                        "Directory `{}`  does not exist. Please double check the directories you intend to add.",
+                        d.display()
+                    )
+                );
+
+                if !self.quiet {
+                    eprintln!("{}", err_nonexistent);
                 }
+
+                return Err(err_nonexistent);
             }
+        }
+
+        // check that the directories to be added don't already exist in the PATH
+        let cleaned_dirs: Vec<PathBuf> = clean_dirs_names(&self.dirs);
+        let _current_dirs: HashSet<PathBuf> = read_path().iter().cloned().collect();
+        let _new_dirs: HashSet<PathBuf> = cleaned_dirs.iter().cloned().collect();
+
+        let _intersecting_dirs: Vec<&Path> = _current_dirs
+            .intersection(&_new_dirs)
+            .into_iter()
+            .map(|d| d.as_path())
+            .collect();
+
+            if !_intersecting_dirs.is_empty() {
+            let err_duplicated = io::Error::new(
+                io::ErrorKind::AlreadyExists,
+                format!(
+                    "Directory `{}` already exists in `$PATH`. Use `pad up/dn` to change priority of this directory, or `pad add -f` to force it. No changes made.",
+                    _intersecting_dirs[0].display()
+                )
+            );
+
+            if !self.quiet {
+                eprintln!("{}", err_duplicated);
+            }
+
+            return Err(err_duplicated);
         }
 
         Ok(())
@@ -70,27 +105,6 @@ pub fn add_to_path(opts: &AddOpt) -> io::Result<()> {
     let mut current_path: Vec<PathBuf> = read_path();
     let mut cleaned_dirs: Vec<PathBuf> = clean_dirs_names(&opts.dirs);
 
-    // check that the directories to be added don't already exist in the PATH
-    let _current_dirs: HashSet<PathBuf> = current_path.iter().cloned().collect();
-    let _new_dirs: HashSet<PathBuf> = cleaned_dirs.iter().cloned().collect();
-    let _intersecting_dirs: Vec<&Path> = _current_dirs
-        .intersection(&_new_dirs)
-        .into_iter()
-        .map(|d| d.as_path())
-        .collect();
-    if !_intersecting_dirs.is_empty() {
-        let err = io::Error::new(
-            io::ErrorKind::AlreadyExists,
-            format!(
-                "Directory `{}` already exists in `$PATH`. Use `pad up/dn` to change priority of this directory, or `pad add -f` to force it. No changes made.",
-                _intersecting_dirs[0].display()
-            )
-        );
-        if !opts.quiet {
-            eprintln!("{}", err)
-        }
-        return Err(err);
-    }
     let newpath = match opts.prepend {
         true => {
             cleaned_dirs.append(&mut current_path);
