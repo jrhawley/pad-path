@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.3] - 2021-12-09
+
+### Fixed
+
+- Prepending a duplicate directory with `pad add` no longer leaves two copies of the directory in `$PATH` when forced.
+- Removing a directory not found in `$PATH` properly raises a warning.
+- Other errors that should have been raised are now raising correctly.
+
 ## [0.2.2] - 2021-11-19
 
 ### Added
