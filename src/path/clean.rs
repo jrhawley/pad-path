@@ -7,6 +7,7 @@ use clap::{crate_authors, AppSettings};
 use itertools::Itertools;
 use std::{
     env::current_dir,
+    ffi::OsString,
     fs::canonicalize,
     io,
     path::{Path, PathBuf, MAIN_SEPARATOR},
@@ -49,13 +50,7 @@ impl CleanOpt {
 /// occurrence in its position and remove all latter occurrences.
 pub fn clean_path(opts: &CleanOpt) -> io::Result<()> {
     let current_path = read_path();
-    // only keep existing and unique directories
-    let vpath: Vec<PathBuf> = current_path
-        .into_iter()
-        .filter(|p| p.exists())
-        .unique()
-        .collect();
-    let newpath = combine_path_like(vpath)?;
+    let newpath = clean_given_path(current_path)?;
     match replace_path(newpath, opts.dry_run, opts.history, opts.quiet) {
         Ok(()) => Ok(()),
         Err(e) => {
@@ -65,6 +60,14 @@ pub fn clean_path(opts: &CleanOpt) -> io::Result<()> {
             Err(e)
         }
     }
+}
+
+/// Clean up a given list of directories by checking for duplicates and other errors.
+pub fn clean_given_path(dirs: Vec<PathBuf>) -> io::Result<OsString> {
+    // only keep existing and unique directories
+    let cleaned_dirs = dirs.into_iter().filter(|p| p.exists()).unique().collect();
+
+    combine_path_like(cleaned_dirs)
 }
 
 /// Clean directory names by removing trailing folder separator characters and
