@@ -75,57 +75,53 @@ pub fn clean_given_path(dirs: Vec<PathBuf>) -> io::Result<OsString> {
 
 /// Clean directory names by removing trailing folder separator characters and
 /// converting to absolute paths
-pub fn clean_dir_name<P: AsRef<Path>>(dir: P) -> PathBuf {
+pub fn clean_dir_name(dir: &Path) -> PathBuf {
     let _cleaned_dir = match has_trailing_slash(&dir) {
         true => {
             let mut _temp_dir = dir
-                .as_ref()
                 .to_string_lossy()
                 .trim_end_matches(MAIN_SEPARATOR)
                 .to_string();
             PathBuf::from(_temp_dir)
         }
-        false => dir.as_ref().to_path_buf(),
+        false => dir.to_path_buf(),
     };
     make_abs_path(&_cleaned_dir)
 }
 
 /// Clean a list of directories
 pub fn clean_dirs_names<P: AsRef<Path>>(dirs: &[P]) -> Vec<PathBuf> {
-    dirs.iter().map(clean_dir_name).collect()
+    dirs.iter().map(|p| clean_dir_name(p.as_ref())).collect()
 }
 
 /// Force a PathBuf to be absolute, or make it absolute using the current directory
-fn make_abs_path<P: AsRef<Path>>(p: P) -> PathBuf {
-    match p.as_ref().is_relative() {
-        true => match p.as_ref().exists() {
-            true => canonicalize(p).unwrap(),
-            false => {
-                let mut abs_dir = current_dir().unwrap();
-                abs_dir.push(p);
-                abs_dir
-            }
-        },
-        false => PathBuf::from(p.as_ref()),
+fn make_abs_path(p: &Path) -> PathBuf {
+    match canonicalize(p) {
+        Ok(p) => p,
+        Err(_) => {
+            let mut abs_dir = current_dir().unwrap();
+            abs_dir.push(p);
+            abs_dir
+        }
     }
 }
 
 /// Check if a directory Path contains the trailing separator.
 #[cfg(target_os = "windows")]
-fn has_trailing_slash<P: AsRef<Path>>(p: P) -> bool {
-    let last = p.as_ref().as_os_str().encode_wide().last();
+fn has_trailing_slash(p: &Path) -> bool {
+    let last = p.as_os_str().encode_wide().last();
     // Windows can have '/' or '\' as its trailing character
     last == Some(b'\\' as u16) || last == Some(b'/' as u16)
 }
 /// Check if a directory Path contains the trailing separator.
 #[cfg(target_os = "linux")]
-fn has_trailing_slash<P: AsRef<Path>>(p: P) -> bool {
-    p.as_ref().to_string_lossy().as_bytes().last() == Some(&b'/')
+fn has_trailing_slash(p: &Path) -> bool {
+    p.to_string_lossy().as_bytes().last() == Some(&b'/')
 }
 /// Check if a directory Path contains the trailing separator.
 #[cfg(target_os = "macos")]
-fn has_trailing_slash<P: AsRef<Path>>(p: P) -> bool {
-    p.as_ref().to_string_lossy().as_bytes().last() == Some(&b'/')
+fn has_trailing_slash(p: &Path) -> bool {
+    p.to_string_lossy().as_bytes().last() == Some(&b'/')
 }
 
 #[cfg(test)]
@@ -139,7 +135,7 @@ mod tests {
         assert_eq!(2 + 2, 4);
     }
 
-    fn check_make_abs_path<P: AsRef<Path>>(input: P, expected: PathBuf) {
+    fn check_make_abs_path(input: &Path, expected: PathBuf) {
         let observed = make_abs_path(input);
         assert_eq!(expected, observed);
     }

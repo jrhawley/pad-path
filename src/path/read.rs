@@ -28,7 +28,7 @@ pub fn read_path() -> Vec<PathBuf> {
 pub fn split_path_like(s: &OsStr) -> Vec<PathBuf> {
     split_paths(s)
         .into_iter()
-        .map(clean_dir_name)
+        .map(|p| clean_dir_name(&p))
         .collect()
 }
 
