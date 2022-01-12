@@ -33,7 +33,6 @@ pub fn split_path_like(s: &OsStr) -> Vec<PathBuf> {
 }
 
 /// Combine a multiple directories back into a single `$PATH`-like `OsString`.
-// pub fn combine_path_like<P: AsRef<Path>>(dirs: &[P]) -> io::Result<OsString> {
 pub fn combine_path_like(dirs: Vec<PathBuf>) -> io::Result<OsString> {
     match join_paths(dirs) {
         Ok(p) => Ok(p),
