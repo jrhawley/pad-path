@@ -14,7 +14,10 @@ use std::{
 };
 use structopt::StructOpt;
 
-use super::{read::{read_path, combine_path_like}, write::replace_path};
+use super::{
+    read::{combine_path_like, read_path},
+    write::replace_path,
+};
 
 #[derive(Debug, StructOpt)]
 #[structopt(
