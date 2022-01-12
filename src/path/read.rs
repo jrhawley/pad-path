@@ -1,8 +1,8 @@
 //! Read the current `$PATH`.
 
 use std::{
-    env::{split_paths, var_os, join_paths},
-    ffi::{OsString, OsStr},
+    env::{join_paths, split_paths, var_os},
+    ffi::{OsStr, OsString},
     io,
     path::PathBuf,
 };
@@ -23,7 +23,7 @@ pub fn read_path() -> Vec<PathBuf> {
 }
 
 /// Split an `OsString` formatted like a `$PATH` into a `Vec`.
-/// 
+///
 /// This is a helper function for a few different others.
 pub fn split_path_like(s: &OsStr) -> Vec<PathBuf> {
     split_paths(s)
@@ -36,9 +36,6 @@ pub fn split_path_like(s: &OsStr) -> Vec<PathBuf> {
 pub fn combine_path_like(dirs: Vec<PathBuf>) -> io::Result<OsString> {
     match join_paths(dirs) {
         Ok(p) => Ok(p),
-        Err(e) => Err(io::Error::new(
-            io::ErrorKind::InvalidData,
-            e,
-        ))
+        Err(e) => Err(io::Error::new(io::ErrorKind::InvalidData, e)),
     }
 }
