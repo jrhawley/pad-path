@@ -124,3 +124,47 @@ fn has_trailing_slash<P: AsRef<Path>>(p: P) -> bool {
 fn has_trailing_slash<P: AsRef<Path>>(p: P) -> bool {
     p.as_ref().to_string_lossy().as_bytes().last() == Some(&b'/')
 }
+
+#[cfg(test)]
+mod tests {
+    use std::path::{Path, PathBuf};
+
+    use crate::path::clean::make_abs_path;
+
+    #[test]
+    fn it_works() {
+        assert_eq!(2 + 2, 4);
+    }
+
+    fn check_make_abs_path<P: AsRef<Path>>(input: P, expected: PathBuf) {
+        let observed = make_abs_path(input);
+        assert_eq!(expected, observed);
+    }
+
+    #[test]
+    #[cfg(not(windows))]
+    fn relative_path_made_absolute() {
+        let pwd = PathBuf::from("/making/my/way/downtown/");
+        let parent = PathBuf::from("/making/my/way/");
+        let sibling = PathBuf::from("/making/my/way/uptown/");
+        let descendent = PathBuf::from("/making/my/way/downtown/walking/fast/");
+
+        check_make_abs_path(pwd.join(".."), parent);
+        check_make_abs_path(pwd.join("../uptown"), sibling);
+        check_make_abs_path(pwd.join("walking/fast"), descendent);
+    }
+
+    #[test]
+    #[cfg(windows)]
+    fn relative_path_made_absolute() {
+        // need to preface Windows paths with "C:" since that's the root, by default
+        let pwd = PathBuf::from("C:/making/my/way/downtown/");
+        let parent = PathBuf::from("C:/making/my/way/");
+        let sibling = PathBuf::from("C:/making/my/way/uptown/");
+        let descendent = PathBuf::from("C:/making/my/way/downtown/walking/fast/");
+
+        check_make_abs_path(pwd.join("../"), parent);
+        check_make_abs_path(pwd.join("../uptown"), sibling);
+        check_make_abs_path(pwd.join("walking/fast"), descendent);
+    }
+}
