@@ -146,11 +146,29 @@ mod tests {
 
     #[test]
     #[cfg(not(windows))]
+    fn remove_middle_relative() {
+        assert_eq!(
+            make_abs_path(Path::new("/usr/../usr")),
+            PathBuf::from("/usr")
+        );
+    }
+
+    #[test]
+    #[cfg(windows)]
+    fn remove_middle_relative() {
+        assert_eq!(
+            make_abs_path(Path::new("C:/Users/../Users")),
+            PathBuf::from("\\\\?\\C:\\Users")
+        );
+    }
+
+    #[test]
+    #[cfg(not(windows))]
     fn relative_path_made_absolute() {
-        let pwd = PathBuf::from("/making/my/way/downtown/");
-        let parent = PathBuf::from("/making/my/way/");
-        let sibling = PathBuf::from("/making/my/way/uptown/");
-        let descendent = PathBuf::from("/making/my/way/downtown/walking/fast/");
+        let pwd = PathBuf::from("/usr");
+        let parent = PathBuf::from("/");
+        let sibling = PathBuf::from("/lib");
+        let descendent = PathBuf::from("/usr/bin");
 
         check_make_abs_path(pwd.join(".."), parent);
         check_make_abs_path(pwd.join("../uptown"), sibling);
@@ -161,13 +179,13 @@ mod tests {
     #[cfg(windows)]
     fn relative_path_made_absolute() {
         // need to preface Windows paths with "C:" since that's the root, by default
-        let pwd = PathBuf::from("C:/making/my/way/downtown/");
-        let parent = PathBuf::from("C:/making/my/way/");
-        let sibling = PathBuf::from("C:/making/my/way/uptown/");
-        let descendent = PathBuf::from("C:/making/my/way/downtown/walking/fast/");
+        let pwd = PathBuf::from("\\\\?\\C:\\Users");
+        let parent = PathBuf::from("\\\\?\\C:\\");
+        let sibling = PathBuf::from("\\\\?\\C:\\Windows");
+        let descendent = PathBuf::from("\\\\?\\C:\\Users\\Public");
 
-        check_make_abs_path(pwd.join("../"), parent);
-        check_make_abs_path(pwd.join("../uptown"), sibling);
-        check_make_abs_path(pwd.join("walking/fast"), descendent);
+        check_make_abs_path(&pwd.join("../"), parent);
+        check_make_abs_path(&pwd.join("../Windows"), sibling);
+        check_make_abs_path(&pwd.join("../Users/Public"), descendent);
     }
 }
