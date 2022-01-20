@@ -1,3 +1,29 @@
+[tasks.publish]
+dependencies = [
+	"zip-all"
+]
+command = "gh"
+args = [
+	"release",
+	"upload",
+	"v{version}",
+	"target/x86_64-pc-windows-gnu/release/pad_v{version}_x86_64-pc-windows-gnu.zip",
+	"target/x86_64-unknown-linux-musl/release/pad_v{version}_x86_64-unknown-linux-musl.zip",
+	"target/x86_64-apple-darwin/release/pad_v{version}_x86_64-apple-darwin.zip",
+]
+
+[tasks.zip-all]
+dependencies = [
+	"zip-windows",
+	"zip-macos",
+	"zip-linux",
+]
+
+[tasks.zip]
+linux_alias = "zip-linux"
+windows_alias = "zip-windows"
+mac_alias = "zip-macos"
+
 [tasks.release-all]
 dependencies = [
 	"release-windows",
@@ -45,12 +71,12 @@ command = "cargo"
 args = ["clean"]
 
 [tasks.build]
+dependencies = ["clean"]
 command = "cargo"
 args = ["build"]
-dependencies = ["clean"]
 
 [tasks.test]
+dependencies = ["clean"]
 command = "cargo"
 args = ["test"]
-dependencies = ["clean"]
 
