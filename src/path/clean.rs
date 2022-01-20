@@ -166,9 +166,9 @@ mod tests {
         let sibling = PathBuf::from("/lib");
         let descendent = PathBuf::from("/usr/bin");
 
-        check_make_abs_path(pwd.join(".."), parent);
-        check_make_abs_path(pwd.join("../uptown"), sibling);
-        check_make_abs_path(pwd.join("walking/fast"), descendent);
+        check_make_abs_path(&Path::new("/usr/.."), parent);
+        check_make_abs_path(&Path::new("/usr/../lib"), sibling);
+        check_make_abs_path(&Path::new("/usr/../usr/bin"), descendent);
     }
 
     #[test]
