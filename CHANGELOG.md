@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.4] - 2022-08-30
+
+### Changed
+
+- Switched from `structopt` to `clap` v3
+
 ## [0.2.3] - 2021-12-09
 
 ### Fixed
