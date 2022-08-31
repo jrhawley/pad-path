@@ -1,30 +1,32 @@
 //! Change the priority of a directory in `$PATH`.
 
+use super::{
+    read::{combine_path_like, read_path},
+    write::replace_path,
+};
+use clap::Parser;
 use std::{cmp::min, io, path::PathBuf};
-use structopt::StructOpt;
 
-use super::{read::{read_path, combine_path_like}, write::replace_path};
-
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Parser)]
 pub struct MvOpt {
     /// Directory to move
-    #[structopt(default_value = ".")]
+    #[clap(default_value = ".")]
     dir: PathBuf,
 
     /// Move directory up `JUMP` spots in the `$PATH`
-    #[structopt(default_value = "1")]
+    #[clap(default_value = "1")]
     jump: usize,
 
     /// Don't print warnings when modifying `$PATH`.
-    #[structopt(short, long)]
+    #[clap(short, long)]
     quiet: bool,
 
     /// Add current `$PATH` to the history
-    #[structopt(short = "H", long)]
+    #[clap(short = 'H', long)]
     history: bool,
 
     /// Don't do anything, just preview what this command would do
-    #[structopt(short = "n", long = "dry-run")]
+    #[clap(short = 'n', long = "dry-run")]
     dry_run: bool,
 }
 
@@ -83,10 +85,8 @@ fn change_priority(opts: &MvOpt, direction_factor: i8) -> io::Result<()> {
                 );
 
                 _vpath
-            },
-            std::cmp::Ordering::Equal => {
-                current_path
-            },
+            }
+            std::cmp::Ordering::Equal => current_path,
             std::cmp::Ordering::Greater => {
                 // get the first few elements of PATH
                 let mut _vpath: Vec<PathBuf> = (0..i)
@@ -110,7 +110,7 @@ fn change_priority(opts: &MvOpt, direction_factor: i8) -> io::Result<()> {
                 );
 
                 _vpath
-            },
+            }
         };
 
         let newpath = combine_path_like(vpath)?;

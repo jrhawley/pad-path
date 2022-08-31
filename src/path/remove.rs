@@ -1,35 +1,32 @@
 //! Remove a directory or multiple directories from the `$PATH`.
 
-use clap::{crate_authors, AppSettings};
+use super::read::{combine_path_like, read_path};
+use super::write::replace_path;
+use clap::{crate_authors, Parser};
 use std::io;
 use std::path::PathBuf;
-use structopt::StructOpt;
 
-use super::read::{read_path, combine_path_like};
-use super::write::replace_path;
-
-#[derive(Debug, StructOpt)]
-#[structopt(
+#[derive(Debug, Parser)]
+#[clap(
     about = "Remove a directory",
     author = crate_authors!(),
     visible_alias = "del",
-    settings = &[AppSettings::ColoredHelp, AppSettings::ColorAuto]
 )]
 pub struct RmOpt {
     /// Directory(ies) to remove
-    #[structopt(default_value = ".")]
+    #[clap(default_value = ".")]
     dir: PathBuf,
 
     /// Don't print warnings when modifying `$PATH`.
-    #[structopt(short, long)]
+    #[clap(short, long)]
     quiet: bool,
 
     /// Add current `$PATH` to the history
-    #[structopt(short = "H", long)]
+    #[clap(short = 'H', long)]
     history: bool,
 
     /// Don't do anything, just preview what this command would do
-    #[structopt(short = "n", long = "dry-run")]
+    #[clap(short = 'n', long = "dry-run")]
     dry_run: bool,
 }
 
@@ -63,14 +60,13 @@ impl RmOpt {
                     self.dir.display()
                 ),
             );
-    
+
             if !self.quiet {
                 eprintln!("{}", err_not_found);
             }
-    
+
             return Err(err_not_found);
         }
-        
 
         Ok(())
     }

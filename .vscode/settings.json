@@ -7,7 +7,6 @@
         "itertools",
         "newpath",
         "sbin",
-        "structopt"
     ],
     "cSpell.ignoreWords": [
         "indir",

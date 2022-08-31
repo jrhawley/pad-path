@@ -1,44 +1,42 @@
 //! Add a directory or multiple directories to the `$PATH`.
 
-use clap::{crate_authors, AppSettings};
+use clap::{crate_authors, Parser};
 use std::collections::HashSet;
 use std::io;
 use std::path::{Path, PathBuf};
-use structopt::StructOpt;
 
 use super::clean::clean_dirs_names;
-use super::read::{read_path, combine_path_like};
+use super::read::{combine_path_like, read_path};
 use super::write::replace_path;
 
-#[derive(Debug, StructOpt)]
-#[structopt(
+#[derive(Debug, Parser)]
+#[clap(
     about = "Add a directory",
     author = crate_authors!(),
-    settings = &[AppSettings::ColoredHelp, AppSettings::ColorAuto]
 )]
 pub struct AddOpt {
     /// Directory(ies) to add
-    #[structopt(default_value = ".", name = "dir")]
+    #[clap(default_value = ".", name = "dir")]
     dirs: Vec<PathBuf>,
 
     /// Forcefully add a directory that doesn't necessarily exist.
-    #[structopt(short, long)]
+    #[clap(short, long)]
     force: bool,
 
     /// Make this directory the highest priority by prepending it to `$PATH`
-    #[structopt(short, long)]
+    #[clap(short, long)]
     prepend: bool,
 
     /// Don't print warnings when modifying `$PATH`.
-    #[structopt(short, long)]
+    #[clap(short, long)]
     quiet: bool,
 
     /// Add current `$PATH` to the history
-    #[structopt(short = "H", long)]
+    #[clap(short = 'H', long)]
     history: bool,
 
     /// Don't do anything, just preview what this command would do
-    #[structopt(short = "n", long = "dry-run")]
+    #[clap(short = 'n', long = "dry-run")]
     dry_run: bool,
 }
 
@@ -79,7 +77,7 @@ impl AddOpt {
             .map(|d| d.as_path())
             .collect();
 
-            if !_intersecting_dirs.is_empty() {
+        if !_intersecting_dirs.is_empty() {
             let err_duplicated = io::Error::new(
                 io::ErrorKind::AlreadyExists,
                 format!(

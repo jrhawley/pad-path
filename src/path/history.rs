@@ -57,13 +57,15 @@ pub fn get_nth_last_revision(n: u128) -> io::Result<OsString> {
     // error out if the revision is too far back (not enough history in the path history file)
     let revision_path = match rev_lines.into_iter().nth((n - 1) as usize) {
         Some(s) => OsString::from(s),
-        None => return Err(io::Error::new(
-            io::ErrorKind::InvalidInput,
-            format!(
+        None => {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                format!(
                 "History does not contain revision {}. Please specify a smaller revision number.",
                 &n
             ),
-        )),
+            ))
+        }
     };
 
     Ok(revision_path)

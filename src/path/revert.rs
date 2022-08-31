@@ -1,35 +1,32 @@
 //! Revert `$PATH` to a previous value.
 
-use clap::{crate_authors, AppSettings};
-use std::io;
-use structopt::StructOpt;
-
 use super::{history::get_nth_last_revision, write::replace_path};
+use clap::{crate_authors, Parser};
+use std::io;
 
-#[derive(Debug, StructOpt)]
-#[structopt(
+#[derive(Debug, Parser)]
+#[clap(
     about = "Revert to a previous version of `$PATH`",
     author = crate_authors!(),
     visible_alias = "echo",
-    settings = &[AppSettings::ColoredHelp, AppSettings::ColorAuto]
 )]
 pub struct RevertOpt {
     /// `$PATH` revision number to revert to.
     /// If not specified, reverts to the most recent version.
     /// Must be a positive whole number.
-    #[structopt(default_value = "1")]
+    #[clap(default_value = "1")]
     revision: u128,
 
     /// Don't print warnings when modifying `$PATH`.
-    #[structopt(short, long)]
+    #[clap(short, long)]
     quiet: bool,
 
     /// Add current `$PATH` to the history
-    #[structopt(short = "H", long)]
+    #[clap(short = 'H', long)]
     history: bool,
 
     /// Don't do anything, just preview what this command would do
-    #[structopt(short = "n", long = "dry-run")]
+    #[clap(short = 'n', long = "dry-run")]
     dry_run: bool,
 }
 

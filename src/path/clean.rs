@@ -3,7 +3,11 @@
 #[cfg(target_os = "windows")]
 use std::os::windows::ffi::OsStrExt;
 
-use clap::{crate_authors, AppSettings};
+use super::{
+    read::{combine_path_like, read_path},
+    write::replace_path,
+};
+use clap::{crate_authors, Parser};
 use itertools::Itertools;
 use std::{
     env::current_dir,
@@ -12,31 +16,24 @@ use std::{
     io,
     path::{Path, PathBuf, MAIN_SEPARATOR},
 };
-use structopt::StructOpt;
 
-use super::{
-    read::{combine_path_like, read_path},
-    write::replace_path,
-};
-
-#[derive(Debug, StructOpt)]
-#[structopt(
+#[derive(Debug, Parser)]
+#[clap(
     about = "Remove duplicates and non-existent directories",
     author = crate_authors!(),
     visible_alias = "dedup",
-    settings = &[AppSettings::ColoredHelp, AppSettings::ColorAuto]
 )]
 pub struct CleanOpt {
     /// Don't print warnings when modifying `$PATH`.
-    #[structopt(short, long)]
+    #[clap(short, long)]
     quiet: bool,
 
     /// Add current `$PATH` to the history
-    #[structopt(short = "H", long)]
+    #[clap(short = 'H', long)]
     history: bool,
 
     /// Don't do anything, just preview what this command would do
-    #[structopt(short = "n", long = "dry-run")]
+    #[clap(short = 'n', long = "dry-run")]
     dry_run: bool,
 }
 

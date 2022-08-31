@@ -1,9 +1,12 @@
 //! Write out the modified `$PATH`.
 
+use crate::path::{
+    clean::clean_given_path,
+    history::write_to_history,
+    read::{read_raw_path, split_path_like},
+};
 use std::ffi::OsString;
 use std::io;
-
-use crate::path::{history::write_to_history, read::{read_raw_path, split_path_like}, clean::clean_given_path};
 
 /// Replace the `$PATH` environment variable.
 pub fn replace_path(
@@ -16,7 +19,11 @@ pub fn replace_path(
     let current_path = String::from(current_raw_path.to_str().unwrap());
 
     // clean the newpath before printing it
-    let cleaned_newpath = String::from(clean_given_path(split_path_like(&newpath))?.to_str().unwrap());
+    let cleaned_newpath = String::from(
+        clean_given_path(split_path_like(&newpath))?
+            .to_str()
+            .unwrap(),
+    );
 
     if dry_run && !quiet {
         eprintln!("`$PATH` before modification:\n\t{}", &current_path);

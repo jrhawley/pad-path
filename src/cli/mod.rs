@@ -1,9 +1,5 @@
 //! Command line argument parsing and decision making.
 
-use clap::{crate_authors, crate_description, crate_name, AppSettings};
-use std::io;
-use structopt::StructOpt;
-
 use crate::path::{
     add::{add_to_path, AddOpt},
     clean::{clean_path, CleanOpt},
@@ -12,47 +8,45 @@ use crate::path::{
     remove::{rm_from_path, RmOpt},
     revert::{revert_path, RevertOpt},
 };
+use clap::{crate_authors, crate_description, crate_name, Parser};
+use std::io;
 
 /// Configuration for the entire application.
 ///
 /// This is specified by the user through the CLI.
-#[derive(Debug, StructOpt)]
-#[structopt(
+#[derive(Debug, Parser)]
+#[clap(
     name = crate_name!(),
     author = crate_authors!(),
     about = crate_description!(),
-    settings = &[AppSettings::ColoredHelp, AppSettings::ColorAuto]
 )]
 pub struct Opt {
-    #[structopt(subcommand)]
+    #[clap(subcommand)]
     cmd: Option<SubCmd>,
 }
 
-#[derive(Debug, StructOpt)]
-#[structopt(about = "Subcommands")]
+#[derive(Debug, Parser)]
+#[clap(about = "Subcommands")]
 enum SubCmd {
     Add(AddOpt),
     Rm(RmOpt),
-    #[structopt(
+    #[clap(
         about = "Increase priority for a directory",
         author = crate_authors!(),
         visible_alias = "inc",
-        settings = &[AppSettings::ColoredHelp, AppSettings::ColorAuto]
     )]
     Up(MvOpt),
-    #[structopt(
+    #[clap(
         about = "Decrease priority for a directory",
         author = crate_authors!(),
         visible_aliases = &["dec", "down"],
-        settings = &[AppSettings::ColoredHelp, AppSettings::ColorAuto]
     )]
     Dn(MvOpt),
     Clean(CleanOpt),
-    #[structopt(
+    #[clap(
         about = "List the directories in `$PATH`",
         author = crate_authors!(),
         visible_alias = "echo",
-        settings = &[AppSettings::ColoredHelp, AppSettings::ColorAuto]
     )]
     Ls,
     Revert(RevertOpt),
