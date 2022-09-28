@@ -158,7 +158,6 @@ mod tests {
     #[test]
     #[cfg(not(windows))]
     fn relative_path_made_absolute() {
-        let _ = PathBuf::from("/usr");
         let parent = PathBuf::from("/");
         let sibling = PathBuf::from("/etc");
         let descendent = PathBuf::from("/usr/bin");
