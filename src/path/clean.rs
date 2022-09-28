@@ -160,11 +160,11 @@ mod tests {
     fn relative_path_made_absolute() {
         let _ = PathBuf::from("/usr");
         let parent = PathBuf::from("/");
-        let sibling = PathBuf::from("/lib");
+        let sibling = PathBuf::from("/etc");
         let descendent = PathBuf::from("/usr/bin");
 
         check_make_abs_path(&Path::new("/usr/.."), parent);
-        check_make_abs_path(&Path::new("/usr/../lib"), sibling);
+        check_make_abs_path(&Path::new("/usr/../etc"), sibling);
         check_make_abs_path(&Path::new("/usr/../usr/bin"), descendent);
     }
 
