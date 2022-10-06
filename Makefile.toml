@@ -58,23 +58,23 @@ command = "7z"
 args = [
 	"a",
 	"target/x86_64-unknown-linux-gnu/release/pad_v${CARGO_MAKE_CRATE_VERSION}_x86_64-unknown-linux-gnu.zip",
-	"target/x86_64-unknown-linux-gnu/release/pad",
+	"./target/x86_64-unknown-linux-gnu/release/pad",
 ]
 
 
-[tasks.release-all]
+[tasks.build-release-all]
 dependencies = [
-	"release-windows",
-	"release-macos",
-	"release-linux",
+	"build-release-windows",
+	"build-release-macos",
+	"build-release-linux",
 ]
 
-[tasks.release]
-linux_alias = "release-linux"
-windows_alias = "release-windows"
-mac_alias = "release-macos"
+[tasks.build-release]
+linux_alias = "build-release-linux"
+windows_alias = "build-release-windows"
+mac_alias = "build-release-macos"
 
-[tasks.release-windows]
+[tasks.build-release-windows]
 command = "cargo"
 args = [
 	"build",
@@ -83,7 +83,7 @@ args = [
 	"x86_64-pc-windows-gnu",
 ]
 
-[tasks.release-macos]
+[tasks.build-release-macos]
 command = "cargo"
 args = [
 	"build",
@@ -92,7 +92,7 @@ args = [
 	"x86_64-apple-darwin",
 ]
 
-[tasks.release-linux]
+[tasks.build-release-linux]
 command = "cargo"
 args = [
 	"build",
