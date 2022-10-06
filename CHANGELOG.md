@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.5] - 2022-10-05
+
+### Fixed
+
+- Testing on Arch Linux no longer fails due to a symlink in `/usr/lib/` (see [#1](https://github.com/jrhawley/pad-path/pull/1), thanks [@thecakeisalie25](https://github.com/thecakeisalie25))
+- Removed erroneous `echo` alias for the `revert` subcommand
+
+### Changed
+
+- Upgraded from `home` to `dirs-next` crate to follow the [XDG Base Directories](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html) and [XDG User Directories](https://www.freedesktop.org/wiki/Software/xdg-user-dirs/) specifications
+- Upgraded to `clap` v4
+
 ## [0.2.4] - 2022-08-30
 
 ### Changed
