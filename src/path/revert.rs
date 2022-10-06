@@ -8,7 +8,6 @@ use std::io;
 #[clap(
     about = "Revert to a previous version of `$PATH`",
     author = crate_authors!(),
-    visible_alias = "echo",
 )]
 pub struct RevertOpt {
     /// `$PATH` revision number to revert to.
