@@ -6,9 +6,9 @@ dependencies = [
 ]
 
 [tasks.release]
-linux_alias = "push-release-linux"
-windows_alias = "push-release-windows"
-mac_alias = "push-release-macos"
+linux_alias = "release-linux"
+windows_alias = "release-windows"
+mac_alias = "release-macos"
 
 [tasks.release-windows]
 dependencies = [
