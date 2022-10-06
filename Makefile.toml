@@ -15,7 +15,7 @@ args = [
 [tasks.zip-all]
 dependencies = [
 	"zip-windows",
-	# "zip-macos",
+	"zip-macos",
 	"zip-linux",
 ]
 
