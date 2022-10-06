@@ -1,4 +1,4 @@
-[tasks.publish]
+[tasks.push-release]
 dependencies = [
 	"zip-all"
 ]
@@ -6,16 +6,16 @@ command = "gh"
 args = [
 	"release",
 	"upload",
-	"v{version}",
-	"target/x86_64-pc-windows-gnu/release/pad_v{version}_x86_64-pc-windows-gnu.zip",
-	"target/x86_64-unknown-linux-musl/release/pad_v{version}_x86_64-unknown-linux-musl.zip",
-	"target/x86_64-apple-darwin/release/pad_v{version}_x86_64-apple-darwin.zip",
+	"v${CARGO_MAKE_CRATE_VERSION}",
+	"target/x86_64-pc-windows-gnu/release/pad_v${CARGO_MAKE_CRATE_VERSION}_x86_64-pc-windows-gnu.zip",
+	"target/x86_64-unknown-linux-gnu/release/pad_v${CARGO_MAKE_CRATE_VERSION}_x86_64-unknown-linux-gnu.zip",
+	# "target/x86_64-apple-darwin/release/pad_v${CARGO_MAKE_CRATE_VERSION}_x86_64-apple-darwin.zip",
 ]
 
 [tasks.zip-all]
 dependencies = [
 	"zip-windows",
-	"zip-macos",
+	# "zip-macos",
 	"zip-linux",
 ]
 
@@ -23,6 +23,44 @@ dependencies = [
 linux_alias = "zip-linux"
 windows_alias = "zip-windows"
 mac_alias = "zip-macos"
+
+[tasks.zip-windows]
+dependencies = [
+	"release-windows",
+	"clean-zip-windows",
+]
+command = "7z"
+args = [
+	"a",
+	"target/x86_64-pc-windows-gnu/release/pad_v${CARGO_MAKE_CRATE_VERSION}_x86_64-pc-windows-gnu.zip",
+	"target/x86_64-pc-windows-gnu/release/pad.exe",
+]
+
+
+[tasks.zip-macos]
+dependencies = [
+	"release-macos",
+	"clean-zip-macos",
+]
+command = "7z"
+args = [
+	"a",
+	"target/x86_64-apple-darwin/release/pad_v${CARGO_MAKE_CRATE_VERSION}_x86_64-apple-darwin.zip",
+	"target/x86_64-apple-darwin/release/pad",
+]
+
+[tasks.zip-linux]
+dependencies = [
+	"release-linux",
+	"clean-zip-linux",
+]
+command = "7z"
+args = [
+	"a",
+	"target/x86_64-unknown-linux-gnu/release/pad_v${CARGO_MAKE_CRATE_VERSION}_x86_64-unknown-linux-gnu.zip",
+	"target/x86_64-unknown-linux-gnu/release/pad",
+]
+
 
 [tasks.release-all]
 dependencies = [
@@ -37,7 +75,6 @@ windows_alias = "release-windows"
 mac_alias = "release-macos"
 
 [tasks.release-windows]
-dependencies = ["clean"]
 command = "cargo"
 args = [
 	"build",
@@ -47,7 +84,6 @@ args = [
 ]
 
 [tasks.release-macos]
-dependencies = ["clean"]
 command = "cargo"
 args = [
 	"build",
@@ -57,26 +93,38 @@ args = [
 ]
 
 [tasks.release-linux]
-dependencies = ["clean"]
 command = "cargo"
 args = [
 	"build",
 	"--release",
 	"--target",
-	"x86_64-unknown-linux-musl",
+	"x86_64-unknown-linux-gnu",
 ]
 
 [tasks.clean]
 command = "cargo"
 args = ["clean"]
 
+[tasks.clean-zip-windows]
+command = "rm"
+args = ["target/x86_64-pc-windows-gnu/release/pad_v${CARGO_MAKE_CRATE_VERSION}_x86_64-pc-windows-gnu.zip"]
+
+[tasks.clean-zip-macos]
+command = "rm"
+args = ["target/x86_64-apple-darwin/release/pad_v${CARGO_MAKE_CRATE_VERSION}_x86_64-apple-darwin.zip"]
+
+[tasks.clean-zip-linux]
+command = "rm"
+args = ["target/x86_64-unknown-linux-gnu/release/pad_v${CARGO_MAKE_CRATE_VERSION}_x86_64-unknown-linux-gnu.zip"]
+
 [tasks.build]
-dependencies = ["clean"]
 command = "cargo"
 args = ["build"]
 
 [tasks.test]
-dependencies = ["clean"]
 command = "cargo"
-args = ["test"]
+args = [
+	"nextest",
+	"run",
+]
 
