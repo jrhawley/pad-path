@@ -156,7 +156,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(not(windows))]
+    #[cfg(target_os = "linux")]
     fn relative_path_made_absolute() {
         let pwd = PathBuf::from("/usr");
         let parent = PathBuf::from("/");
@@ -169,7 +169,20 @@ mod tests {
     }
 
     #[test]
-    #[cfg(windows)]
+    #[cfg(target_os = "macos")]
+    fn relative_path_made_absolute() {
+        let pwd = PathBuf::from("/usr");
+        let parent = PathBuf::from("/");
+        let sibling = PathBuf::from("/Applications");
+        let descendent = PathBuf::from("/usr/bin");
+
+        check_make_abs_path(&pwd.join(".."), parent);
+        check_make_abs_path(&pwd.join("../Applications"), sibling);
+        check_make_abs_path(&pwd.join("../usr/bin"), descendent);
+    }
+
+    #[test]
+    #[cfg(target_os = "windows")]
     fn relative_path_made_absolute() {
         // need to preface Windows paths with "C:" since that's the root, by default
         let pwd = PathBuf::from("\\\\?\\C:\\Users");
