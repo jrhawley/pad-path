@@ -26,32 +26,32 @@ mac_alias = "zip-macos"
 
 [tasks.zip-windows]
 dependencies = [
-	"release-windows",
+	"build-release-windows",
 	"clean-zip-windows",
 ]
 command = "7z"
 args = [
 	"a",
 	"target/x86_64-pc-windows-gnu/release/pad_v${CARGO_MAKE_CRATE_VERSION}_x86_64-pc-windows-gnu.zip",
-	"target/x86_64-pc-windows-gnu/release/pad.exe",
+	"./target/x86_64-pc-windows-gnu/release/pad.exe",
 ]
 
 
 [tasks.zip-macos]
 dependencies = [
-	"release-macos",
+	"build-release-macos",
 	"clean-zip-macos",
 ]
 command = "7z"
 args = [
 	"a",
 	"target/x86_64-apple-darwin/release/pad_v${CARGO_MAKE_CRATE_VERSION}_x86_64-apple-darwin.zip",
-	"target/x86_64-apple-darwin/release/pad",
+	"./target/x86_64-apple-darwin/release/pad",
 ]
 
 [tasks.zip-linux]
 dependencies = [
-	"release-linux",
+	"build-release-linux",
 	"clean-zip-linux",
 ]
 command = "7z"
