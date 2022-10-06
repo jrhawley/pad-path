@@ -1,7 +1,7 @@
 //! Read and write to the `$PATH` history.
 
 use clap::crate_name;
-use home::home_dir;
+use dirs_next::{config_dir, home_dir};
 use rev_lines::RevLines;
 use std::{
     env,
@@ -15,10 +15,10 @@ use std::{
 /// priority one.
 pub fn get_history_filepath() -> PathBuf {
     // check if $XDG_CONFIG_HOME is set
-    let mut cfg_path = match env::var("XDG_CONFIG_HOME") {
-        Ok(dir) => PathBuf::from(dir),
+    let mut cfg_path = match config_dir() {
+        Some(dir) => dir,
         // if not set, make it the default $HOME/.config
-        Err(_) => {
+        None => {
             if let Some(mut dir) = home_dir() {
                 dir.push(".config");
                 dir
@@ -61,7 +61,7 @@ pub fn get_nth_last_revision(n: u128) -> io::Result<OsString> {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidInput,
                 format!(
-                "History does not contain revision {}. Please specify a smaller revision number.",
+                "History does not contain {} revision(s). Please specify a smaller revision number.",
                 &n
             ),
             ))

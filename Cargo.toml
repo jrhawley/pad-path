@@ -20,7 +20,7 @@ include = [
 
 [dependencies]
 clap = { version = "4", features = ["cargo", "derive"] }
-home = "0.5"
+dirs-next = "2.0.0"
 itertools = "0.9"
 rev_lines = "0.2"
 
