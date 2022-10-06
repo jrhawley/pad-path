@@ -24,6 +24,12 @@ dirs-next = "2.0.0"
 itertools = "0.9"
 rev_lines = "0.2"
 
+[build-dependencies]
+cargo-make = "0.36.1"
+
+[dev-dependencies]
+cargo-nextest = "0.9.38"
+
 [[bin]]
 name = "pad"
 path = "src/main.rs"
