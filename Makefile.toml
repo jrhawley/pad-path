@@ -106,16 +106,28 @@ command = "cargo"
 args = ["clean"]
 
 [tasks.clean-zip-windows]
+condition = {files_exist = ["target/x86_64-pc-windows-gnu/release/pad_v${CARGO_MAKE_CRATE_VERSION}_x86_64-pc-windows-gnu.zip"]}
 command = "rm"
-args = ["target/x86_64-pc-windows-gnu/release/pad_v${CARGO_MAKE_CRATE_VERSION}_x86_64-pc-windows-gnu.zip"]
+args = [
+	"-f",
+	"target/x86_64-pc-windows-gnu/release/pad_v${CARGO_MAKE_CRATE_VERSION}_x86_64-pc-windows-gnu.zip",
+]
 
 [tasks.clean-zip-macos]
+condition = {files_exist = ["target/x86_64-apple-darwin/release/pad_v${CARGO_MAKE_CRATE_VERSION}_x86_64-apple-darwin.zip"] }
 command = "rm"
-args = ["target/x86_64-apple-darwin/release/pad_v${CARGO_MAKE_CRATE_VERSION}_x86_64-apple-darwin.zip"]
+args = [
+	"-f",
+	"target/x86_64-apple-darwin/release/pad_v${CARGO_MAKE_CRATE_VERSION}_x86_64-apple-darwin.zip",
+]
 
 [tasks.clean-zip-linux]
+condition = {files_exist = ["target/x86_64-unknown-linux-gnu/release/pad_v${CARGO_MAKE_CRATE_VERSION}_x86_64-unknown-linux-gnu.zip"] }
 command = "rm"
-args = ["target/x86_64-unknown-linux-gnu/release/pad_v${CARGO_MAKE_CRATE_VERSION}_x86_64-unknown-linux-gnu.zip"]
+args = [
+	"-f",
+	"target/x86_64-unknown-linux-gnu/release/pad_v${CARGO_MAKE_CRATE_VERSION}_x86_64-unknown-linux-gnu.zip",
+]
 
 [tasks.build]
 command = "cargo"
