@@ -1,4 +1,4 @@
-# pad
+# pad-path
 
 Intuitively modify your `$PATH`.
 
@@ -6,15 +6,23 @@ Intuitively modify your `$PATH`.
 
 ## Installation
 
-### Cargo
+### Windows (via Scoop)
 
 ```shell
-cargo install pad-path
+# add the bucket containing pad-path's manifest
+scoop bucket add jrhawley https://github.com/jrhawley/scoop-bucket
+
+# install
+scoop install pad-path
 ```
 
-### Build from source
+### Build from source (via Cargo)
 
 ```shell
+# directly from crates.io
+cargo install pad-path
+
+# or, equivalently, after downloading the code repo
 git clone https://github.com/jrhawley/pad-path
 cd pad-path
 cargo install --path .
