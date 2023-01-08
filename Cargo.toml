@@ -25,10 +25,10 @@ itertools = "0.9"
 rev_lines = "0.2"
 
 [build-dependencies]
-cargo-make = "0.36.1"
+cargo-make = "0.36"
 
 [dev-dependencies]
-cargo-nextest = "0.9.38"
+cargo-nextest = "0.9"
 
 [[bin]]
 name = "pad"
