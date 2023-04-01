@@ -8,7 +8,6 @@
     };
     nixpkgs.url = "github:NixOS/nixpkgs/release-22.11";
     flake-utils.url = "github:numtide/flake-utils";
-    # rust-overlay.url = "github:oxalica/rust-overlay";
   };
 
   outputs =
@@ -20,22 +19,6 @@
 
     flake-utils.lib.eachDefaultSystem (system:
     let
-      # overlays = [
-      #   (import rust-overlay)
-      #   (self: super: {
-      #     rustToolchain =
-      #       let
-      #         rust = super.rust-bin;
-      #       in
-      #       if builtins.pathExists ./rust-toolchain.toml then
-      #         rust.fromRustupToolchainFile ./rust-toolchain.toml
-      #       else if builtins.pathExists ./rust-toolchain then
-      #         rust.fromRustupToolchainFile ./rust-toolchain
-      #       else
-      #         rust.stable.latest.default;
-      #   })
-      # ];
-
       pkgs = import nixpkgs { inherit system; }; #overlays; };
       rustToolchain = fenix.packages.${system}.stable.toolchain;
       rustPlatform = (pkgs.makeRustPlatform {
@@ -44,7 +27,7 @@
       });
 
       name = "pad-path";
-      version = "0.2.5";
+      version = "0.2.6";
       deps = with pkgs; [
         rustToolchain
         openssl
