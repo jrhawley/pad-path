@@ -123,9 +123,8 @@ fn has_trailing_slash(p: &Path) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use std::path::{Path, PathBuf};
-
     use crate::path::clean::make_abs_path;
+    use std::path::{Path, PathBuf};
 
     #[test]
     fn it_works() {
