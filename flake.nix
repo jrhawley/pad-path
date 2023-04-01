@@ -39,6 +39,10 @@
         cargo-watch
         rust-analyzer
       ];    
+      dev-deps = with pkgs; [
+        cachix
+        jq
+      ];
       
       drv = rustPlatform.buildRustPackage {
         pname = "${name}";
@@ -55,7 +59,7 @@
         default = drv;
       };
       devShells.default = pkgs.mkShell {
-        packages = deps;
+        packages = deps ++ dev-deps;
       };
     });
 }
