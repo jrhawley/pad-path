@@ -13,7 +13,7 @@ keywords = ["cli", "path"]
 include = [
 	"src/**/*",
 	"Cargo.toml",
-	"README.md"
+	"./README.md"
 ]
 
 [dependencies]
