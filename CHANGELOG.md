@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.2.6] - 2023-04-01
+
+### Added
+
+- [Nix flake](https://nixos.wiki/wiki/Flakes) for compilation and development environments
+
+### Fixed
+
+- Tests in the `crate::path::clean` module now pass on Linux systems that don't have `/usr/` as a top-level directory
+  - This was discovered when trying to build a Nix package
+
 ## [0.2.5] - 2022-10-05
 
 ### Fixed
