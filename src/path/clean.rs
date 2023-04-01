@@ -139,32 +139,29 @@ mod tests {
     #[test]
     #[cfg(not(windows))]
     fn remove_middle_relative() {
-        assert_eq!(
-            make_abs_path(Path::new("/usr/../usr")),
-            PathBuf::from("/usr")
-        );
+        check_make_abs_path(Path::new("/etc/../etc"), PathBuf::from("/etc"));
     }
 
     #[test]
-    #[cfg(windows)]
+    #[cfg(target_os = "windows")]
     fn remove_middle_relative() {
-        assert_eq!(
-            make_abs_path(Path::new("C:/Users/../Users")),
-            PathBuf::from("\\\\?\\C:\\Users")
+        check_make_abs_path(
+            Path::new("C:/Users/../Users"),
+            PathBuf::from("\\\\?\\C:\\Users"),
         );
     }
 
     #[test]
     #[cfg(target_os = "linux")]
     fn relative_path_made_absolute() {
-        let pwd = PathBuf::from("/usr");
+        let pwd = PathBuf::from("/bin");
         let parent = PathBuf::from("/");
         let sibling = PathBuf::from("/etc");
-        let descendent = PathBuf::from("/usr/bin");
+        let descendent = PathBuf::from("/bin/sh");
 
         check_make_abs_path(&pwd.join(".."), parent);
         check_make_abs_path(&pwd.join("../etc"), sibling);
-        check_make_abs_path(&pwd.join("../usr/bin"), descendent);
+        check_make_abs_path(&pwd.join("../bin/sh"), descendent);
     }
 
     #[test]
