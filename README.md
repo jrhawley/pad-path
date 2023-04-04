@@ -16,6 +16,12 @@ scoop bucket add jrhawley https://github.com/jrhawley/scoop-bucket
 scoop install pad-path
 ```
 
+### Nix
+
+```shell
+nix profile install github:jrhawley/pad-path
+```
+
 ### Build from source (via Cargo)
 
 ```shell
@@ -148,19 +154,6 @@ cargo make build-release-all
 
 To create a tag and a release on GitHub, we make use of the [GitHub CLI](https://cli.github.com/).
 
-```shell
-# for the OS you're working on
-cargo make release
-
-# for a specific OS
-cargo make release-windows
-cargo make release-macos
-cargo make release-linux
-
-# for all OS's
-cargo make release-all
-```
-
 ### Testing
 
 We generally follow the testing ideas in [The Rust Programming Language Book](https://doc.rust-lang.org/stable/book/ch11-00-testing.html).
@@ -173,3 +166,4 @@ cargo nextest run
 # or, equivalently
 cargo make test
 ```
+
