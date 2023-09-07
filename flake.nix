@@ -34,6 +34,7 @@
       ]);
       dev-deps = with pkgs; [
         cachix
+        glab
         jq
         p7zip
       ];
