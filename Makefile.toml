@@ -12,8 +12,6 @@ args = [
 	"v${CARGO_MAKE_PROJECT_VERSION}",
 	"target/x86_64-pc-windows-gnu/release/${CARGO_MAKE_PROJECT_NAME}_v${CARGO_MAKE_PROJECT_VERSION}_x86_64-pc-windows-gnu.zip",
 	"target/x86_64-unknown-linux-musl/release/${CARGO_MAKE_PROJECT_NAME}_v${CARGO_MAKE_PROJECT_VERSION}_x86_64-unknown-linux-musl.zip",
-	"-F",
-	"CHANGELOG.md",
 ]
 
 [tasks.zip-all]
