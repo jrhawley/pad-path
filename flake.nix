@@ -2,34 +2,25 @@
   description = "pad-path development environment";
 
   inputs = {
-    fenix = {
-      url = "github:nix-community/fenix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    nixpkgs.url = "github:NixOS/nixpkgs/release-22.11";
     flake-utils.url = "github:numtide/flake-utils";
+    fenix.url = "github:nix-community/fenix";
+    nixpkgs.url = "github:NixOS/nixpkgs/release-23.05";
   };
 
-  outputs =
-    { self
-    , nixpkgs
-    , flake-utils
-    , fenix
-    }:
-
-    flake-utils.lib.eachDefaultSystem (system:
+  outputs = { self, flake-utils, fenix, nixpkgs, }: flake-utils.lib.eachDefaultSystem (system:
     let
-      pkgs = import nixpkgs { inherit system; }; #overlays; };
-      rustToolchain = fenix.packages.${system}.stable.toolchain;
-      rustPlatform = (pkgs.makeRustPlatform {
-        cargo = rustToolchain;
-        rustc = rustToolchain;
-      });
+      pkgs = import nixpkgs {
+        inherit system;
+      };
+      toolchain = (with fenix.packages.${system}; combine [
+        minimal.rustc
+        minimal.cargo
+        targets.x86_64-pc-windows-gnu.latest.rust-std
+      ]);
 
-      name = "pad-path";
-      version = "0.2.6";
-      deps = with pkgs; [
-        rustToolchain
+      deps = (with pkgs; [
+        llvmPackages_16.clangUseLLVM
+        libxml2
         openssl
         pkg-config
         cargo-deny
@@ -38,28 +29,22 @@
         cargo-nextest
         cargo-watch
         rust-analyzer
-      ];    
+        rustup
+        xz
+      ]);
       dev-deps = with pkgs; [
         cachix
         jq
+        p7zip
       ];
-      
-      drv = rustPlatform.buildRustPackage {
-        pname = "${name}";
-        version = "${version}";
-        src = builtins.path {
-          path = ./.;
-          name = "${name}";
-        };
-        cargoLock.lockFile = ./Cargo.lock;
-      };
+
+      build-deps = with pkgs; [
+        pkgsCross.mingwW64.stdenv.cc
+        pkgsCross.mingwW64.windows.pthreads
+      ];
     in {
-      packages = {
-        "${name}" = drv;
-        default = drv;
-      };
       devShells.default = pkgs.mkShell {
-        packages = deps ++ dev-deps;
+        packages = deps ++ dev-deps ++ build-deps;
       };
     });
 }
