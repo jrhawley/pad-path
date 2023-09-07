@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.7] - 2023-09-07
+
+### Fixed
+
+- Nix flake requirements for Windows cross-compilation
+- Some security audits by upgrading dependencies
+
 ## [0.2.6] - 2023-04-01
 
 ### Added

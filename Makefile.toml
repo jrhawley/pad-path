@@ -1,58 +1,24 @@
-[tasks.release-all]
-dependencies = [
-	"release-linux",
-	"release-windows",
-	"release-macos",
-]
+[env]
+CARGO_MAKE_BINARY_NAME = "pad"
 
-[tasks.release]
-linux_alias = "release-linux"
-windows_alias = "release-windows"
-mac_alias = "release-macos"
-
-[tasks.release-windows]
+[tasks.create-forge-release]
 dependencies = [
-	"zip-windows"
+	"zip-all",
 ]
-command = "gh"
+command = "glab"
 args = [
 	"release",
-	"upload",
-	"--clobber",
+	"create",
 	"v${CARGO_MAKE_PROJECT_VERSION}",
 	"target/x86_64-pc-windows-gnu/release/${CARGO_MAKE_PROJECT_NAME}_v${CARGO_MAKE_PROJECT_VERSION}_x86_64-pc-windows-gnu.zip",
-]
-
-[tasks.release-macos]
-dependencies = [
-	"zip-macos"
-]
-command = "gh"
-args = [
-	"release",
-	"upload",
-	"--clobber",
-	"v${CARGO_MAKE_PROJECT_VERSION}",
-	"target/x86_64-apple-darwin/release/${CARGO_MAKE_PROJECT_NAME}_v${CARGO_MAKE_PROJECT_VERSION}_x86_64-apple-darwin.zip",
-]
-
-[tasks.release-linux]
-dependencies = [
-	"zip-linux"
-]
-command = "gh"
-args = [
-	"release",
-	"upload",
-	"--clobber",
-	"v${CARGO_MAKE_PROJECT_VERSION}",
-	"target/x86_64-unknown-linux-gnu/release/${CARGO_MAKE_PROJECT_NAME}_v${CARGO_MAKE_PROJECT_VERSION}_x86_64-unknown-linux-gnu.zip",
+	"target/x86_64-unknown-linux-musl/release/${CARGO_MAKE_PROJECT_NAME}_v${CARGO_MAKE_PROJECT_VERSION}_x86_64-unknown-linux-musl.zip",
+	"-F",
+	"CHANGELOG.md",
 ]
 
 [tasks.zip-all]
 dependencies = [
 	"zip-windows",
-	"zip-macos",
 	"zip-linux",
 ]
 
@@ -70,7 +36,7 @@ command = "7z"
 args = [
 	"a",
 	"target/x86_64-pc-windows-gnu/release/${CARGO_MAKE_PROJECT_NAME}_v${CARGO_MAKE_PROJECT_VERSION}_x86_64-pc-windows-gnu.zip",
-	"./target/x86_64-pc-windows-gnu/release/${CARGO_MAKE_PROJECT_NAME}.exe",
+	"./target/x86_64-pc-windows-gnu/release/${CARGO_MAKE_BINARY_NAME}.exe",
 ]
 
 
@@ -83,7 +49,7 @@ command = "7z"
 args = [
 	"a",
 	"target/x86_64-apple-darwin/release/${CARGO_MAKE_PROJECT_NAME}_v${CARGO_MAKE_PROJECT_VERSION}_x86_64-apple-darwin.zip",
-	"./target/x86_64-apple-darwin/release/${CARGO_MAKE_PROJECT_NAME}",
+	"./target/x86_64-apple-darwin/release/${CARGO_MAKE_BINARY_NAME}",
 ]
 
 [tasks.zip-linux]
@@ -94,10 +60,9 @@ dependencies = [
 command = "7z"
 args = [
 	"a",
-	"target/x86_64-unknown-linux-gnu/release/${CARGO_MAKE_PROJECT_NAME}_v${CARGO_MAKE_PROJECT_VERSION}_x86_64-unknown-linux-gnu.zip",
-	"./target/x86_64-unknown-linux-gnu/release/${CARGO_MAKE_PROJECT_NAME}",
+	"target/x86_64-unknown-linux-musl/release/${CARGO_MAKE_PROJECT_NAME}_v${CARGO_MAKE_PROJECT_VERSION}_x86_64-unknown-linux-musl.zip",
+	"./target/x86_64-unknown-linux-musl/release/${CARGO_MAKE_BINARY_NAME}",
 ]
-
 
 [tasks.build-release-all]
 dependencies = [
@@ -135,7 +100,7 @@ args = [
 	"build",
 	"--release",
 	"--target",
-	"x86_64-unknown-linux-gnu",
+	"x86_64-unknown-linux-musl",
 ]
 
 [tasks.clean]
@@ -159,11 +124,11 @@ args = [
 ]
 
 [tasks.clean-zip-linux]
-condition = {files_exist = ["target/x86_64-unknown-linux-gnu/release/${CARGO_MAKE_PROJECT_NAME}_v${CARGO_MAKE_PROJECT_VERSION}_x86_64-unknown-linux-gnu.zip"] }
+condition = {files_exist = ["target/x86_64-unknown-linux-musl/release/${CARGO_MAKE_PROJECT_NAME}_v${CARGO_MAKE_PROJECT_VERSION}_x86_64-unknown-linux-musl.zip"] }
 command = "rm"
 args = [
 	"-f",
-	"target/x86_64-unknown-linux-gnu/release/${CARGO_MAKE_PROJECT_NAME}_v${CARGO_MAKE_PROJECT_VERSION}_x86_64-unknown-linux-gnu.zip",
+	"target/x86_64-unknown-linux-musl/release/${CARGO_MAKE_PROJECT_NAME}_v${CARGO_MAKE_PROJECT_VERSION}_x86_64-unknown-linux-musl.zip",
 ]
 
 [tasks.build]
