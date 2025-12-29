@@ -2,6 +2,9 @@
 
 Intuitively modify your `$PATH`.
 
+**Note**: this repository has been archived.
+Development of this project has switched to [this location](https://gitlab.com/jrhawley/pad-path).
+
 ![Crates.io](https://img.shields.io/crates/v/pad-path)
 
 ## Installation
